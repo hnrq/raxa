@@ -4,3 +4,10 @@ export type Expense = {
 	paidBy: string;
 	participants: Set<string>;
 };
+
+export type Bill = {
+	id: string;
+	title: string;
+	participants: string[];
+	expenses: Expense[];
+};
