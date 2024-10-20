@@ -6,7 +6,9 @@ export type Expense = {
 };
 
 export type Bill = {
-	id: string;
+	ownedBy: string;
+	createdAt: Date;
+	updatedAt: Date;
 	title: string;
 	participants: string[];
 	expenses: Expense[];
