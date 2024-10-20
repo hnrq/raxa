@@ -1,8 +1,8 @@
 <script lang="ts">
-	let { label, onRemove } = $props<{ label: string; onRemove: () => void }>();
+	let { label, onRemove } = $props<{ label: string; onRemove?: () => void }>();
 </script>
 
 <div class="tag">
 	<span>{label}</span>
-	<button onclick={onRemove}>x</button>
+	{#if onRemove}<button onclick={onRemove}>x</button>{/if}
 </div>

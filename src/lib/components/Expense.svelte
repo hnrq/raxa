@@ -1,20 +1,17 @@
 <script lang="ts">
+	import type { Expense } from '$lib/types';
 	import Tag from './Tag.svelte';
 
-	let { title, amount, paidBy, participants, onAddUser } = $props<{
-		name: string;
-		amount: number;
-		paidBy: string;
-		participants: Set<string>;
-		onAddUser: () => void;
-	}>();
+	let { title, price, paidBy, participants, onAddUser } = $props<
+		Expense & { onAddUser: () => void }
+	>();
 
 	const onRemove = (user: string) => participants.delete(user);
 </script>
 
 <div class="expense">
 	<h3>{title}</h3>
-	<p>Amount: {amount}</p>
+	<p>Price: {price}</p>
 	<p>Paid by: {paidBy}</p>
 	<div class="expense__used-by">
 		Used by:

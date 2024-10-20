@@ -35,6 +35,6 @@
 	},
 	"type": "module",
 	"dependencies": {
-		"@fontsource/roboto-mono": "^5.1.0"
+		"@fontsource-variable/roboto-mono": "^5.1.0"
 	}
 }
