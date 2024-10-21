@@ -3,12 +3,22 @@
 	import Dialog from '$lib/components/Dialog.svelte';
 	import Expense from '$lib/components/Expense.svelte';
 	import Tag from '$lib/components/Tag.svelte';
+	import ExpenseForm from '$lib/forms/ExpenseForm.svelte';
+	import ParticipantsForm from '$lib/forms/ParticipantsForm.svelte';
 	import createBill, { fetchBill } from '$lib/stores/bill';
 
 	let showAddExpenseDialog = $state(false);
 	let showEditParticipantsForm = $state(false);
 
-	const { participants, total, expenses, updateParticipants, addExpense, set } = createBill();
+	const {
+		participants,
+		total,
+		expenses,
+		set,
+		updateParticipants,
+		addExpense,
+		updateExpenseParticipants
+	} = createBill();
 
 	const setBillInitialState = async () => {
 		const result = await fetchBill($page.params.id);
@@ -33,6 +43,12 @@
 		});
 		showAddExpenseDialog = false;
 	};
+
+	const onUpdateExpenseParticipants = (id: string) => async (event: SubmitEvent) => {
+		event.preventDefault();
+		const formData = new FormData(event.target as HTMLFormElement);
+		await updateExpenseParticipants(id, (formData.get('participants') as string).split(', '));
+	};
 </script>
 
 {#await setBillInitialState()}
@@ -40,16 +56,11 @@
 {:then}
 	<div class="participants">
 		{#if showEditParticipantsForm}
-			<form onsubmit={onParticipantsSubmit}>
-				<textarea
-					placeholder="Type participants separated by comma"
-					name="participants"
-					value={$participants.join(', ')}
-					required
-				></textarea>
-				<button onclick={() => (showEditParticipantsForm = false)}>Cancel</button>
-				<button type="submit">Save</button>
-			</form>
+			<ParticipantsForm
+				onsubmit={onParticipantsSubmit}
+				oncancel={() => (showEditParticipantsForm = false)}
+				initialValue={$participants.join(', ')}
+			/>
 		{:else}
 			{#each $participants as participant}
 				<Tag label={participant} />
@@ -59,40 +70,23 @@
 	</div>
 	<div>
 		{#each $expenses as expense}
-			<Expense {expense} />
+			<Expense
+				{expense}
+				onUpdateParticipants={onUpdateExpenseParticipants(expense.id)}
+				participants={$participants}
+			/>
 		{/each}
 		{$total}
-		<button onclick={() => (showAddExpenseDialog = true)}>Add expense</button>
+		<button disabled={$participants.length === 0} onclick={() => (showAddExpenseDialog = true)}>
+			Add expense
+		</button>
 	</div>
 
 	<Dialog bind:open={showAddExpenseDialog}>
-		<form onsubmit={onExpenseSubmit}>
-			<label>
-				Title:
-				<input type="text" name="title" placeholder="Soda" required />
-			</label>
-			<label>
-				Price:
-				<input type="number" name="price" placeholder="5.00" required />
-			</label>
-			<label>
-				Paid by:
-				<select name="paidBy" required>
-					{#each $participants as participant}
-						<option value={participant}>{participant}</option>
-					{/each}
-				</select>
-			</label>
-			<label>
-				Used by:
-				{#each $participants as participant}
-					<label>
-						<input type="checkbox" name="participants" value={participant} />
-						{participant}
-					</label>
-				{/each}
-			</label>
-			<button type="submit">Add</button>
-		</form>
+		<ExpenseForm
+			onsubmit={onExpenseSubmit}
+			oncancel={() => (showAddExpenseDialog = false)}
+			participants={$participants}
+		/>
 	</Dialog>
 {/await}

@@ -1,11 +1,28 @@
 import type { Bill } from '$lib/types';
-import { doc, getDoc, updateDoc } from 'firebase/firestore/lite';
+import {
+	doc,
+	getDoc,
+	getDocs,
+	updateDoc,
+	addDoc,
+	collection,
+	deleteDoc
+} from 'firebase/firestore/lite';
 import { db } from '$lib/firebase/client';
-import { addDoc, collection, deleteDoc } from 'firebase/firestore/lite';
 import { derived, get, writable } from 'svelte/store';
 import { page } from '$app/stores';
 
-export const fetchBill = async (id: string) => (await getDoc(doc(db, 'bills', id))).data() as Bill;
+export const fetchBill = async (id: string) => {
+	const [billSnapshot, expensesSnapshot] = await Promise.all([
+		getDoc(doc(db, 'bills', id)),
+		getDocs(collection(db, 'bills', id, 'expenses'))
+	]);
+
+	return {
+		...billSnapshot.data(),
+		expenses: expensesSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }))
+	} as Bill;
+};
 
 const createBill = (initialState?: Bill) => {
 	const id = get(page).params.id;
@@ -20,9 +37,18 @@ const createBill = (initialState?: Bill) => {
 		participants.set(p);
 	};
 
-	const addExpense = async (expense: Bill['expenses'][number]) => {
-		await addDoc(collection(db, 'bills', id, 'expenses'), expense);
-		expenses.update((value) => [...value, expense]);
+	const addExpense = async (data: Omit<Bill['expenses'][number], 'id'>) => {
+		const expense = await addDoc(collection(db, 'bills', id, 'expenses'), data);
+		expenses.update((value) => [...value, { ...data, id: expense.id }]);
+	};
+
+	const updateExpenseParticipants = async (expenseId: string, participants: string[]) => {
+		await updateDoc(doc(db, 'bills', id, 'expenses', expenseId), {
+			participants: [...new Set(participants)]
+		});
+		expenses.update((value) =>
+			value.map((expense) => (expense.id === expenseId ? { ...expense, participants } : expense))
+		);
 	};
 
 	const removeExpense = async (id: string) => {
@@ -34,6 +60,7 @@ const createBill = (initialState?: Bill) => {
 		expenses: { subscribe: expenses.subscribe },
 		total: { subscribe: total.subscribe },
 		updateParticipants,
+		updateExpenseParticipants,
 		addExpense,
 		removeExpense,
 		set: (bill: Bill) => {

@@ -12,8 +12,6 @@
 		if (user) {
 			const result = await addDoc(collection(db, 'bills'), {
 				ownedBy: user.uid,
-				createdAt: new Date(),
-				updatedAt: new Date(),
 				title: '',
 				participants: [],
 				expenses: []

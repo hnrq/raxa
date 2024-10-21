@@ -1,4 +1,5 @@
 export type Expense = {
+	id: string;
 	title: string;
 	price: number;
 	paidBy: string;
@@ -7,8 +8,6 @@ export type Expense = {
 
 export type Bill = {
 	ownedBy: string;
-	createdAt: Date;
-	updatedAt: Date;
 	title: string;
 	participants: string[];
 	expenses: Expense[];

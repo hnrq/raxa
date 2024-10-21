@@ -1,5 +1,5 @@
 <script lang="ts">
-	let { label, onRemove } = $props<{ label: string; onRemove?: () => void }>();
+	let { label, onRemove }: { label: string; onRemove?: () => void } = $props();
 </script>
 
 <div class="tag">
