@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { onMount, type Snippet } from 'svelte';
-	import { fade } from 'svelte/transition';
 
 	let { open = $bindable(), children }: { open: boolean; children: Snippet } = $props();
 
@@ -23,14 +22,17 @@
 	});
 </script>
 
-<dialog bind:this={dialog} in:fade out:fade>
+<dialog bind:this={dialog}>
 	<button onclick={() => (open = false)}> Close </button>
 	{@render children()}
 </dialog>
 
 <style>
-	dialog {
+	dialog[open] {
 		padding: 0;
 		border: 0;
+		display: flex;
+		flex-direction: column;
+		gap: var(--base-spacing);
 	}
 </style>

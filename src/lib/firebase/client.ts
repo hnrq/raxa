@@ -10,7 +10,7 @@ import {
 
 import { initializeApp, type FirebaseApp } from 'firebase/app';
 import { getAuth, type Auth } from 'firebase/auth';
-import { Firestore, getFirestore } from 'firebase/firestore/lite';
+import { type Firestore, getFirestore } from 'firebase/firestore/lite';
 
 const firebaseConfig = {
 	apiKey: PUBLIC_FIREBASE_API_KEY,

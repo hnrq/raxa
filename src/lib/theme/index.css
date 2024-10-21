@@ -1,11 +1,26 @@
 @import './button.css';
+@import '@fontsource-variable/roboto-mono';
 
 :root {
 	--base-spacing: 8px;
 	--color-primary: #47eb92;
-	--color-foreground: #000000;
-	--text-base: 255, 255, 255;
+	--color-foreground: #fff;
+	--text-base: 0, 0, 0;
 	--text-high: rgba(var(--text-base), 0.87);
 	--text-medium: rgba(var(--text-base), 0.67);
 	--text-low: rgba(var(--text-base), 0.3);
+}
+
+* {
+	font-family: 'Roboto Mono Variable', monospace;
+	color: var(--text-high);
+}
+
+html {
+	font-size: 18px;
+}
+
+body {
+	background-color: var(--color-foreground);
+	margin: 0;
 }

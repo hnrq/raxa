@@ -1,10 +1,9 @@
 <script lang="ts">
 	import type { Expense } from '$lib/types';
-	import Tag from './Tag.svelte';
 
 	let showEditParticipantsForm = $state(false);
 
-	let {
+	const {
 		expense,
 		onUpdateParticipants,
 		participants
@@ -23,9 +22,14 @@
 </script>
 
 <div class="expense">
-	<h3>{expense.title}</h3>
-	<p>Price: {expense.price}</p>
-	<p>Paid by: {expense.paidBy}</p>
+	<div class="expense__title">
+		<span>{expense.title}</span>
+		<hr />
+		<span>{Number(expense.price).toFixed(2)}</span>
+	</div>
+	<small class="expense__paid-by">
+		Paid by {expense.paidBy}
+	</small>
 	{#if showEditParticipantsForm}
 		<form onsubmit={handleUpdateParticipants}>
 			{#each participants as participant}
@@ -39,16 +43,41 @@
 					{participant}
 				</label>
 			{/each}
-			<button onclick={() => (showEditParticipantsForm = false)}>Cancel</button>
+			<button type="reset" onclick={() => (showEditParticipantsForm = false)}> Cancel </button>
 			<button type="submit">Save</button>
 		</form>
 	{:else}
-		<div class="expense__used-by">
-			Used by:
-			{#each expense.participants as participant}
-				<Tag label={participant} />
-			{/each}
-		</div>
-		<button onclick={() => (showEditParticipantsForm = true)}>Update Participants</button>
+		<small class="expense__used-by">
+			Divided with {expense.participants.join(', ')}
+			<button onclick={() => (showEditParticipantsForm = true)}> Edit</button>
+		</small>
 	{/if}
 </div>
+
+<style>
+	.expense {
+		display: flex;
+		flex-direction: column;
+		gap: var(--base-spacing);
+	}
+
+	.expense__title {
+		font-size: 1.5rem;
+		display: flex;
+		gap: var(--base-spacing);
+		align-items: baseline;
+		color: var(--text-high);
+	}
+
+	.expense__title > hr {
+		flex: 1;
+		border: none;
+		border-top: 1px dotted var(--text-medium);
+		height: 0;
+	}
+
+	.expense__used-by,
+	.expense__paid-by {
+		color: var(--text-medium);
+	}
+</style>

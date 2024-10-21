@@ -14,7 +14,7 @@
 	} = $props();
 </script>
 
-<form {onsubmit}>
+<form class="expense-form" {onsubmit}>
 	<label>
 		Title:
 		<input type="text" name="title" placeholder="Soda" value={initialValue?.title} required />
@@ -42,6 +42,34 @@
 			</label>
 		{/each}
 	</label>
-	<button onclick={oncancel}>Cancel</button>
-	<button type="submit">Add</button>
+	<div class="expense-form__actions">
+		<button type="reset" onclick={oncancel}>Cancel</button>
+		<button type="submit">Add</button>
+	</div>
 </form>
+
+<style>
+	.expense-form {
+		display: flex;
+		flex-direction: column;
+		gap: var(--base-spacing);
+		padding: calc(var(--base-spacing) * 2);
+	}
+
+	.expense-form > label {
+		display: flex;
+		gap: var(--base-spacing);
+		align-items: center;
+		font-size: 0.75rem;
+	}
+
+	.expense-form > label > :is(input, select) {
+		flex: 1;
+	}
+
+	.expense-form__actions {
+		display: flex;
+		gap: var(--base-spacing);
+		justify-content: right;
+	}
+</style>
