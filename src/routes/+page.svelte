@@ -14,7 +14,8 @@
 				ownedBy: user.uid,
 				title: '',
 				participants: [],
-				expenses: []
+				expenses: [],
+				createdAt: new Date()
 			});
 			goto(`/${result?.id}`);
 		}

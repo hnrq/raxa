@@ -1,80 +1,98 @@
 <script lang="ts">
 	import { page } from '$app/stores';
+	import createAddExpenseMutation from '$lib/api/operations/createAddExpenseMutation';
+	import createBillQuery from '$lib/api/operations/createBillQuery';
+	import createUpdateParticipantsMutation from '$lib/api/operations/createUpdateParticipantsMutation';
 	import Dialog from '$lib/components/Dialog.svelte';
 	import Expense from '$lib/components/Expense.svelte';
 	import ExpenseForm from '$lib/forms/ExpenseForm.svelte';
 	import ParticipantsForm from '$lib/forms/ParticipantsForm.svelte';
-	import createBill, { fetchBill } from '$lib/stores/bill';
+	import { derived } from 'svelte/store';
 
 	let showAddExpenseDialog = $state(false);
 	let showEditParticipantsForm = $state(false);
 
-	const {
-		participants,
-		total,
-		expenses,
-		set,
-		updateParticipants,
-		addExpense,
-		updateExpenseParticipants
-	} = createBill();
-
-	const setBillInitialState = async () => {
-		const result = await fetchBill($page.params.id);
-		if (result) set(result);
-	};
+	const bill = createBillQuery({ id: $page.params.id });
+	const updateParticipants = createUpdateParticipantsMutation({
+		onSuccess: () => {
+			showEditParticipantsForm = false;
+		}
+	});
+	const addExpense = createAddExpenseMutation();
+	const updateExpenseParticipants = createUpdateParticipantsMutation();
 
 	const onParticipantsSubmit = async (event: SubmitEvent) => {
 		event.preventDefault();
 		const formData = new FormData(event.target as HTMLFormElement);
-		await updateParticipants((formData.get('participants') as string).split(', '));
-		showEditParticipantsForm = false;
+		$updateParticipants.mutate({
+			id: $page.params.id,
+			participants: (formData.get('participants') as string).split(', ')
+		});
 	};
 
 	const onExpenseSubmit = async (event: SubmitEvent) => {
 		event.preventDefault();
 		const formData = new FormData(event.target as HTMLFormElement);
-		await addExpense({
-			title: formData.get('title') as string,
-			price: Number.parseFloat(formData.get('price') as string),
-			paidBy: formData.get('paidBy') as string,
-			participants: formData.getAll('participants') as string[]
-		});
-		showAddExpenseDialog = false;
+		$addExpense.mutate(
+			{
+				expense: {
+					title: formData.get('title') as string,
+					price: Number.parseFloat(formData.get('price') as string),
+					paidBy: formData.get('paidBy') as string,
+					participants: formData.getAll('participants') as string[]
+				},
+				id: $page.params.id
+			},
+			{
+				onSuccess: () => {
+					showAddExpenseDialog = false;
+					(event.target as HTMLFormElement).reset();
+				}
+			}
+		);
 	};
 
-	const onUpdateExpenseParticipants = (id: string) => async (participants: string[]) => {
-		await updateExpenseParticipants(id, participants);
-	};
+	const onUpdateExpenseParticipants = (id: string) => async (participants: string[]) =>
+		$updateExpenseParticipants.mutate({ id, participants });
+
+	const total = derived(
+		bill,
+		($bill) => $bill.data?.expenses.reduce((acc, { price }) => acc + price, 0) ?? 0
+	);
 </script>
 
-{#await setBillInitialState()}
+{#if $bill.isLoading}
 	<h4>Loading...</h4>
-{:then}
+{:else if $bill.data !== undefined}
 	<div class="bill">
 		<div class="bill__participants">
 			{#if showEditParticipantsForm}
 				<ParticipantsForm
+					disabled={$updateParticipants.isPending}
 					onsubmit={onParticipantsSubmit}
 					oncancel={() => (showEditParticipantsForm = false)}
-					initialValue={$participants.join(', ')}
+					initialValue={$bill.data.participants.join(', ')}
 				/>
 			{:else}
-				<small>Divided by {$participants.join(', ')}</small>
+				<small>Divided by {$bill.data.participants.join(', ')}</small>
 				<button onclick={() => (showEditParticipantsForm = true)}>Edit</button>
 			{/if}
 		</div>
 		<hr />
 		<div class="bill__expenses">
-			<button disabled={$participants.length === 0} onclick={() => (showAddExpenseDialog = true)}>
+			<button
+				type="button"
+				disabled={$bill.data.participants.length === 0}
+				onclick={() => (showAddExpenseDialog = true)}
+			>
 				+ Add expense
 			</button>
 			<div>
-				{#each $expenses as expense}
+				{#each $bill.data.expenses as expense}
 					<Expense
 						{expense}
 						onUpdateParticipants={onUpdateExpenseParticipants(expense.id)}
-						participants={$participants}
+						participants={$bill.data.participants}
 					/>
 				{/each}
 			</div>
@@ -90,10 +108,10 @@
 		<ExpenseForm
 			onsubmit={onExpenseSubmit}
 			oncancel={() => (showAddExpenseDialog = false)}
-			participants={$participants}
+			participants={$bill.data.participants}
 		/>
 	</Dialog>
-{/await}
+{/if}
 
 <style>
 	.bill {

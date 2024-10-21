@@ -37,6 +37,7 @@
 	"type": "module",
 	"dependencies": {
 		"@fontsource-variable/roboto-mono": "^5.1.0",
+		"@tanstack/svelte-query": "^5.59.13",
 		"firebase": "^10.14.1"
 	}
 }

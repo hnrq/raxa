@@ -2,8 +2,10 @@
 	const {
 		onsubmit,
 		initialValue,
-		oncancel
+		oncancel,
+		disabled
 	}: {
+		disabled?: boolean;
 		onsubmit: (event: SubmitEvent) => void;
 		initialValue?: string;
 		oncancel: () => void;
@@ -18,10 +20,11 @@
 		id="participants"
 		value={initialValue}
 		required
+		{disabled}
 	></textarea>
 	<div class="participants-form__actions">
-		<button type="reset" onclick={oncancel}>Cancel</button>
-		<button type="submit">Save</button>
+		<button type="reset" {disabled} onclick={oncancel}>Cancel</button>
+		<button type="submit" {disabled}>Save</button>
 	</div>
 </form>
 
