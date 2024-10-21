@@ -1,8 +1,9 @@
 <!-- +layout.svelte -->
 <script>
 	import '@fontsource-variable/roboto-mono';
+	import '$lib/theme/index.css';
 
-	const { children } = $props();
+	let { children } = $props();
 </script>
 
 {@render children()}
