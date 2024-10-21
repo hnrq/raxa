@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 
-	let { open, children } = $props<{ open: boolean; children: unknown }>();
+	let { open = $bindable(), children } = $props<{ open: boolean; children: unknown }>();
 
 	let dialog: HTMLDialogElement;
 

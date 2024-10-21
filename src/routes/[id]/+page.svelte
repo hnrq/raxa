@@ -1,80 +1,98 @@
 <script lang="ts">
-	import { enhance } from '$app/forms';
+	import { page } from '$app/stores';
 	import Dialog from '$lib/components/Dialog.svelte';
+	import Expense from '$lib/components/Expense.svelte';
 	import Tag from '$lib/components/Tag.svelte';
-	import type { Expense } from '$lib/types';
+	import createBill, { fetchBill } from '$lib/stores/bill';
 
-	let participants: string[] = [];
-	let expenses: Expense[] = [];
-	let showAddExpenseDialog = false;
-	let showEditParticipantsForm = false;
+	let showAddExpenseDialog = $state(false);
+	let showEditParticipantsForm = $state(false);
 
-	$effect(() => {
-		console.log({ showAddExpenseDialog });
-	});
+	const { participants, total, expenses, updateParticipants, addExpense, set } = createBill();
+
+	const setBillInitialState = async () => {
+		const result = await fetchBill($page.params.id);
+		if (result) set(result);
+	};
+
+	const onParticipantsSubmit = async (event: SubmitEvent) => {
+		event.preventDefault();
+		const formData = new FormData(event.target as HTMLFormElement);
+		await updateParticipants((formData.get('participants') as string).split(', '));
+		showEditParticipantsForm = false;
+	};
+
+	const onExpenseSubmit = async (event: SubmitEvent) => {
+		event.preventDefault();
+		const formData = new FormData(event.target as HTMLFormElement);
+		await addExpense({
+			title: formData.get('title') as string,
+			price: parseFloat(formData.get('price') as string),
+			paidBy: formData.get('paidBy') as string,
+			participants: formData.getAll('participants') as string[]
+		});
+		showAddExpenseDialog = false;
+	};
 </script>
 
-<div class="participants">
-	{#if showEditParticipantsForm}
-		<form
-			method="POST"
-			action="?/add-participant"
-			use:enhance={() =>
-				async ({ result }) => {
-					if (result.type === 'success') {
-						if (result.data?.participants) participants = result.data.participants as string[];
-						showEditParticipantsForm = false;
-					}
-				}}
-		>
-			<textarea
-				placeholder="Type participants separated by comma"
-				name="participants"
-				value={participants.join(', ')}
-				required
-			></textarea>
-			<button onclick={() => (showEditParticipantsForm = false)}>Cancel</button>
-			<button type="submit">Save</button>
-		</form>
-	{:else}
-		{#each participants as participant}
-			<Tag label={participant} />
-		{/each}
-		<button onclick={() => (showEditParticipantsForm = true)}>Edit participants</button>
-	{/if}
-</div>
-
-<div>
-	<button onclick={() => (showAddExpenseDialog = true)}>Add expense</button>
-</div>
-
-<Dialog open={showAddExpenseDialog}>
-	<form method="POST" action="?/add-expense" use:enhance>
-		<label>
-			Title:
-			<input type="text" name="title" placeholder="Soda" required />
-		</label>
-		<label>
-			Price:
-			<input type="number" name="price" placeholder="5.00" required />
-		</label>
-		<label>
-			Paid by:
-			<select name="paidBy" required>
-				{#each participants as participant}
-					<option value={participant}>{participant}</option>
-				{/each}
-			</select>
-		</label>
-		<label>
-			Used by:
-			{#each participants as participant}
-				<label>
-					<input type="checkbox" name="participants" value={participant} />
-					{participant}
-				</label>
+{#await setBillInitialState()}
+	<h4>Loading...</h4>
+{:then}
+	<div class="participants">
+		{#if showEditParticipantsForm}
+			<form onsubmit={onParticipantsSubmit}>
+				<textarea
+					placeholder="Type participants separated by comma"
+					name="participants"
+					value={$participants.join(', ')}
+					required
+				></textarea>
+				<button onclick={() => (showEditParticipantsForm = false)}>Cancel</button>
+				<button type="submit">Save</button>
+			</form>
+		{:else}
+			{#each $participants as participant}
+				<Tag label={participant} />
 			{/each}
-		</label>
-		<button type="submit">Add</button>
-	</form>
-</Dialog>
+			<button onclick={() => (showEditParticipantsForm = true)}>Edit participants</button>
+		{/if}
+	</div>
+	<div>
+		{#each $expenses as expense}
+			<Expense {expense} />
+		{/each}
+		{$total}
+		<button onclick={() => (showAddExpenseDialog = true)}>Add expense</button>
+	</div>
+
+	<Dialog bind:open={showAddExpenseDialog}>
+		<form onsubmit={onExpenseSubmit}>
+			<label>
+				Title:
+				<input type="text" name="title" placeholder="Soda" required />
+			</label>
+			<label>
+				Price:
+				<input type="number" name="price" placeholder="5.00" required />
+			</label>
+			<label>
+				Paid by:
+				<select name="paidBy" required>
+					{#each $participants as participant}
+						<option value={participant}>{participant}</option>
+					{/each}
+				</select>
+			</label>
+			<label>
+				Used by:
+				{#each $participants as participant}
+					<label>
+						<input type="checkbox" name="participants" value={participant} />
+						{participant}
+					</label>
+				{/each}
+			</label>
+			<button type="submit">Add</button>
+		</form>
+	</Dialog>
+{/await}
