@@ -1,4 +1,6 @@
 <script lang="ts">
+	import FormActions from '$lib/components/FormActions.svelte';
+
 	const {
 		onsubmit,
 		initialValue,
@@ -23,8 +25,7 @@
 		{disabled}
 	></textarea>
 	<div class="participants-form__actions">
-		<button type="reset" {disabled} onclick={oncancel}>Cancel</button>
-		<button type="submit" {disabled}>Save</button>
+		<FormActions {disabled} {oncancel} />
 	</div>
 </form>
 

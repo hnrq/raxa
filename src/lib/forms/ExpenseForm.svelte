@@ -1,4 +1,5 @@
 <script lang="ts">
+	import FormActions from '$lib/components/FormActions.svelte';
 	import type { Expense } from '$lib/types';
 
 	let {
@@ -60,8 +61,7 @@
 		{/each}
 	</label>
 	<div class="expense-form__actions">
-		<button type="reset" onclick={oncancel} {disabled}>Cancel</button>
-		<button type="submit" {disabled}>Add</button>
+		<FormActions {disabled} {oncancel} saveLabel="Add" />
 	</div>
 </form>
 

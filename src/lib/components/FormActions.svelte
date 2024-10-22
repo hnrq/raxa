@@ -2,13 +2,19 @@
 	const {
 		oncancel,
 		saveLabel = 'Save',
-		cancelLabel = 'Cancel'
-	}: { oncancel: () => void; saveLabel?: string; cancelLabel?: string } = $props();
+		cancelLabel = 'Cancel',
+		disabled = false
+	}: {
+		oncancel: () => void;
+		saveLabel?: string;
+		cancelLabel?: string;
+		disabled?: boolean;
+	} = $props();
 </script>
 
 <div class="form-actions">
-	<button type="reset" onclick={oncancel}>{cancelLabel}</button>
-	<button type="submit">{saveLabel}</button>
+	<button {disabled} type="reset" onclick={oncancel}>{cancelLabel}</button>
+	<button {disabled} type="submit">{saveLabel}</button>
 </div>
 
 <style>

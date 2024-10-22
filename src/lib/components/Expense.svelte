@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { Expense } from '$lib/types';
+	import FormActions from './FormActions.svelte';
 
 	let showEditParticipantsForm = $state(false);
 
@@ -43,8 +44,7 @@
 					{participant}
 				</label>
 			{/each}
-			<button type="reset" onclick={() => (showEditParticipantsForm = false)}> Cancel </button>
-			<button type="submit">Save</button>
+			<FormActions oncancel={() => (showEditParticipantsForm = false)} />
 		</form>
 	{:else}
 		<small class="expense__used-by">
@@ -59,6 +59,7 @@
 		display: flex;
 		flex-direction: column;
 		gap: var(--base-spacing);
+		padding: var(--base-spacing) calc(var(--base-spacing) * 3);
 	}
 
 	.expense__title {
