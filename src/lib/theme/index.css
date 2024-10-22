@@ -2,40 +2,40 @@
 @import '@fontsource-variable/roboto-mono';
 
 .light {
-	--color-foreground: #fff;
-	--text-base: 0, 0, 0;
+  --color-foreground: #fff;
+  --text-base: 0, 0, 0;
 }
 
 .dark {
-	--color-foreground: #000;
-	--text-base: 255, 255, 255;
+  --color-foreground: #000;
+  --text-base: 255, 255, 255;
 }
 
 :root {
-	--base-spacing: 8px;
-	--color-primary: #47eb92;
+  --base-spacing: 8px;
+  --color-primary: #47eb92;
 
-	--text-high: rgba(var(--text-base), 0.87);
-	--text-medium: rgba(var(--text-base), 0.67);
-	--text-low: rgba(var(--text-base), 0.3);
+  --text-high: rgba(var(--text-base), 0.87);
+  --text-medium: rgba(var(--text-base), 0.67);
+  --text-low: rgba(var(--text-base), 0.3);
 }
 
 * {
-	font-family: 'Roboto Mono Variable', monospace;
-	color: var(--text-high);
-	transition: color 0.2s ease-in-out;
+  font-family: 'Roboto Mono Variable', monospace;
+  color: var(--text-high);
+  transition: color 0.2s ease-in-out;
 }
 
 *:disabled {
-	opacity: 0.7;
+  opacity: 0.7;
 }
 
 html {
-	font-size: 18px;
+  font-size: 18px;
 }
 
 body {
-	transition: background-color 0.2s ease-in-out;
-	background-color: var(--color-foreground);
-	margin: 0;
+  transition: background-color 0.2s ease-in-out;
+  background-color: var(--color-foreground);
+  margin: 0;
 }

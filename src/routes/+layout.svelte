@@ -1,25 +1,25 @@
 <script lang="ts">
-	import { browser } from '$app/environment';
-	import client from '$lib/api/client';
-	import '$lib/theme/index.css';
-	import { QueryClientProvider } from '@tanstack/svelte-query';
-	import { onMount, type Snippet } from 'svelte';
+  import { browser } from '$app/environment';
+  import client from '$lib/api/client';
+  import '$lib/theme/index.css';
+  import { QueryClientProvider } from '@tanstack/svelte-query';
+  import { onMount, type Snippet } from 'svelte';
 
-	const { children }: { children: Snippet } = $props();
+  const { children }: { children: Snippet } = $props();
 
-	onMount(() => {
-		if (browser)
-			document.body.addEventListener('keydown', (e: KeyboardEvent) => {
-				if (!(e.key === 'Enter' && (e.metaKey || e.ctrlKey)) || !e.target) return;
+  onMount(() => {
+    if (browser)
+      document.body.addEventListener('keydown', (e: KeyboardEvent) => {
+        if (!(e.key === 'Enter' && (e.metaKey || e.ctrlKey)) || !e.target) return;
 
-				if ('form' in e.target) {
-					const formElement = e.target.form as HTMLFormElement;
-					formElement?.requestSubmit();
-				}
-			});
-	});
+        if ('form' in e.target) {
+          const formElement = e.target.form as HTMLFormElement;
+          formElement?.requestSubmit();
+        }
+      });
+  });
 </script>
 
 <QueryClientProvider {client}>
-	{@render children()}
+  {@render children()}
 </QueryClientProvider>

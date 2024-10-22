@@ -1,23 +1,23 @@
 <!doctype html>
 <html lang="en">
-	<head>
-		<script>
-			window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
-				console.log('Dark mode is now', e.matches ? 'on' : 'off');
-				localStorage.theme = e.matches ? 'dark' : 'light';
-				document.body.classList.remove('light', 'dark');
-				document.documentElement.classList.add(localStorage.theme);
-			});
+  <head>
+    <script>
+      window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+        console.log('Dark mode is now', e.matches ? 'on' : 'off');
+        localStorage.theme = e.matches ? 'dark' : 'light';
+        document.body.classList.remove('light', 'dark');
+        document.documentElement.classList.add(localStorage.theme);
+      });
 
-			const theme = localStorage.theme;
-			document.documentElement.className = theme;
-		</script>
-		<meta charset="utf-8" />
-		<link rel="icon" href="%sveltekit.assets%/favicon.svg" />
-		<meta name="viewport" content="width=device-width, initial-scale=1" />
-		%sveltekit.head%
-	</head>
-	<body data-sveltekit-preload-data="hover">
-		<div style="display: contents">%sveltekit.body%</div>
-	</body>
+      const theme = localStorage.theme;
+      document.documentElement.className = theme;
+    </script>
+    <meta charset="utf-8" />
+    <link rel="icon" href="%sveltekit.assets%/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    %sveltekit.head%
+  </head>
+  <body data-sveltekit-preload-data="hover">
+    <div style="display: contents">%sveltekit.body%</div>
+  </body>
 </html>

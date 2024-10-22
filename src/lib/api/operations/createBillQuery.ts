@@ -6,20 +6,20 @@ import { getDoc, doc, getDocs, collection, query, orderBy } from 'firebase/fires
 type BillQueryOptions = { id: string } & Omit<CreateQueryOptions<Bill>, 'queryFn' | 'queryKey'>;
 
 const createBillQuery = ({ id, ...opts }: BillQueryOptions) =>
-	createQuery({
-		...opts,
-		queryKey: ['bills', id],
-		queryFn: async () => {
-			const [billSnapshot, expensesSnapshot] = await Promise.all([
-				getDoc(doc(db, 'bills', id)),
-				getDocs(query(collection(db, 'bills', id, 'expenses'), orderBy('createdAt')))
-			]);
+  createQuery({
+    ...opts,
+    queryKey: ['bills', id],
+    queryFn: async () => {
+      const [billSnapshot, expensesSnapshot] = await Promise.all([
+        getDoc(doc(db, 'bills', id)),
+        getDocs(query(collection(db, 'bills', id, 'expenses'), orderBy('createdAt')))
+      ]);
 
-			return {
-				...billSnapshot.data(),
-				expenses: expensesSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }))
-			} as Bill;
-		}
-	});
+      return {
+        ...billSnapshot.data(),
+        expenses: expensesSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }))
+      } as Bill;
+    }
+  });
 
 export default createBillQuery;
