@@ -3,9 +3,9 @@
 	"version": "0.0.1",
 	"private": true,
 	"scripts": {
-		"dev": "node -r dotenv/config vite dev",
-		"build": "node -r dotenv/config vite build",
-		"preview": "node -r dotenv/config vite preview",
+		"dev": "dotenvx run -f .env -- vite dev",
+		"build": "dotenvx run -f .env -- vite build",
+		"preview": "dotenvx run -f .env -- vite preview",
 		"test": "npm run test:integration && npm run test:unit",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
@@ -16,6 +16,7 @@
 		"prepare": "husky"
 	},
 	"devDependencies": {
+		"@dotenvx/dotenvx": "^1.20.0",
 		"@playwright/test": "^1.28.1",
 		"@sveltejs/adapter-auto": "^3.0.0",
 		"@sveltejs/adapter-netlify": "^4.3.5",
