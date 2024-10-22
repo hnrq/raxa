@@ -8,6 +8,7 @@
 	import Expense from '$lib/components/Expense.svelte';
 	import FormActions from '$lib/components/FormActions.svelte';
 	import LoadingScreen from '$lib/components/LoadingScreen.svelte';
+	import ThemeToggle from '$lib/components/ThemeToggle.svelte';
 	import ExpenseForm from '$lib/forms/ExpenseForm.svelte';
 	import ParticipantsForm from '$lib/forms/ParticipantsForm.svelte';
 	import { derived } from 'svelte/store';
@@ -72,6 +73,7 @@
 	<LoadingScreen />
 {:else if $bill.data !== undefined}
 	<div class="bill">
+		<ThemeToggle />
 		<div class="bill__title">
 			{#if showEditTitleForm}
 				<form onsubmit={handleChangeTitle}>

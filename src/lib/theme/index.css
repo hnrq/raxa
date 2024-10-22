@@ -1,11 +1,20 @@
 @import './button.css';
 @import '@fontsource-variable/roboto-mono';
 
+.light {
+	--color-foreground: #fff;
+	--text-base: 0, 0, 0;
+}
+
+.dark {
+	--color-foreground: #000;
+	--text-base: 255, 255, 255;
+}
+
 :root {
 	--base-spacing: 8px;
 	--color-primary: #47eb92;
-	--color-foreground: #fff;
-	--text-base: 0, 0, 0;
+
 	--text-high: rgba(var(--text-base), 0.87);
 	--text-medium: rgba(var(--text-base), 0.67);
 	--text-low: rgba(var(--text-base), 0.3);

@@ -3,9 +3,9 @@
 	import client from '$lib/api/client';
 	import '$lib/theme/index.css';
 	import { QueryClientProvider } from '@tanstack/svelte-query';
-	import { onMount } from 'svelte';
+	import { onMount, type Snippet } from 'svelte';
 
-	const { children } = $props();
+	const { children }: { children: Snippet } = $props();
 
 	onMount(() => {
 		if (browser)
