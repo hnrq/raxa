@@ -5,9 +5,11 @@
 		onsubmit,
 		oncancel,
 		participants,
-		initialValue
+		initialValue,
+		disabled
 	}: {
 		oncancel: () => void;
+		disabled?: boolean;
 		onsubmit: (event: SubmitEvent) => void | Promise<void>;
 		participants: string[];
 		initialValue?: Expense;
@@ -17,15 +19,30 @@
 <form class="expense-form" {onsubmit}>
 	<label>
 		Title:
-		<input type="text" name="title" placeholder="Soda" value={initialValue?.title} required />
+		<input
+			{disabled}
+			type="text"
+			name="title"
+			placeholder="Soda"
+			value={initialValue?.title}
+			required
+		/>
 	</label>
 	<label>
 		Price:
-		<input type="number" name="price" placeholder="5.00" value={initialValue?.price} required />
+		<input
+			{disabled}
+			type="number"
+			name="price"
+			placeholder="5.00"
+			step="0.01"
+			value={initialValue?.price}
+			required
+		/>
 	</label>
 	<label>
 		Paid by:
-		<select name="paidBy" required>
+		<select name="paidBy" required {disabled}>
 			{#each participants as participant}
 				<option value={participant} selected={initialValue?.paidBy === participant}>
 					{participant}
@@ -37,14 +54,14 @@
 		Used by:
 		{#each participants as participant}
 			<label>
-				<input type="checkbox" name="participants" value={participant} checked />
+				<input {disabled} type="checkbox" name="participants" value={participant} checked />
 				{participant}
 			</label>
 		{/each}
 	</label>
 	<div class="expense-form__actions">
-		<button type="reset" onclick={oncancel}>Cancel</button>
-		<button type="submit">Add</button>
+		<button type="reset" onclick={oncancel} {disabled}>Cancel</button>
+		<button type="submit" {disabled}>Add</button>
 	</div>
 </form>
 
