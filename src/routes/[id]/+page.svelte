@@ -3,8 +3,10 @@
 	import createAddExpenseMutation from '$lib/api/operations/createAddExpenseMutation';
 	import createBillQuery from '$lib/api/operations/createBillQuery';
 	import createUpdateParticipantsMutation from '$lib/api/operations/createUpdateParticipantsMutation';
+	import createUpdateTitleMutation from '$lib/api/operations/createUpdateTitleMutation';
 	import Dialog from '$lib/components/Dialog.svelte';
 	import Expense from '$lib/components/Expense.svelte';
+	import FormActions from '$lib/components/FormActions.svelte';
 	import LoadingScreen from '$lib/components/LoadingScreen.svelte';
 	import ExpenseForm from '$lib/forms/ExpenseForm.svelte';
 	import ParticipantsForm from '$lib/forms/ParticipantsForm.svelte';
@@ -12,17 +14,19 @@
 
 	let showAddExpenseDialog = $state(false);
 	let showEditParticipantsForm = $state(false);
+	let showEditTitleForm = $state(false);
 
 	const bill = createBillQuery({ id: $page.params.id });
 	const updateParticipants = createUpdateParticipantsMutation({
-		onSuccess: () => {
-			showEditParticipantsForm = false;
-		}
+		onSuccess: () => (showEditParticipantsForm = false)
 	});
 	const addExpense = createAddExpenseMutation();
 	const updateExpenseParticipants = createUpdateParticipantsMutation();
+	const updateTitle = createUpdateTitleMutation({
+		onSuccess: () => (showEditTitleForm = false)
+	});
 
-	const onParticipantsSubmit = async (event: SubmitEvent) => {
+	const handleParticipantsUpdate = async (event: SubmitEvent) => {
 		event.preventDefault();
 		const formData = new FormData(event.target as HTMLFormElement);
 		$updateParticipants.mutate({
@@ -31,7 +35,13 @@
 		});
 	};
 
-	const onExpenseSubmit = async (event: SubmitEvent) => {
+	const handleChangeTitle = (event: SubmitEvent) => {
+		event.preventDefault();
+		const formData = new FormData(event.target as HTMLFormElement);
+		$updateTitle.mutate({ id: $page.params.id, title: formData.get('title') as string });
+	};
+
+	const handleExpenseSubmit = async (event: SubmitEvent) => {
 		event.preventDefault();
 		const formData = new FormData(event.target as HTMLFormElement);
 		$addExpense.mutate(
@@ -67,14 +77,30 @@
 {:else if $bill.data !== undefined}
 	<div class="bill">
 		<div class="bill__title">
-			<h1>{$bill.data.title || 'Untitled bill'}</h1>
-			<button type="button">Edit</button>
+			{#if showEditTitleForm}
+				<form onsubmit={handleChangeTitle}>
+					<input
+						disabled={$updateTitle.isPending}
+						type="text"
+						name="title"
+						value={$bill.data.title}
+						required
+					/>
+					<FormActions
+						disabled={$updateTitle.isPending}
+						oncancel={() => (showEditTitleForm = false)}
+					/>
+				</form>
+			{:else}
+				<h1>{$bill.data.title || 'Untitled bill'}</h1>
+				<button type="button" onclick={() => (showEditTitleForm = true)}>Edit</button>
+			{/if}
 		</div>
 		<div class="bill__participants">
 			{#if showEditParticipantsForm}
 				<ParticipantsForm
 					disabled={$updateParticipants.isPending}
-					onsubmit={onParticipantsSubmit}
+					onsubmit={handleParticipantsUpdate}
 					oncancel={() => (showEditParticipantsForm = false)}
 					initialValue={$bill.data.participants.join(', ')}
 				/>
@@ -84,12 +110,7 @@
 			{/if}
 		</div>
 		<hr />
-		<button
-			type="button"
-			class="bill__add-expense"
-			disabled={$bill.data.participants.length === 0}
-			onclick={() => (showAddExpenseDialog = true)}
-		>
+		<button type="button" class="bill__add-expense" onclick={() => (showAddExpenseDialog = true)}>
 			+ Add expense
 		</button>
 		<div class="bill__expenses">
@@ -110,7 +131,7 @@
 
 	<Dialog bind:open={showAddExpenseDialog}>
 		<ExpenseForm
-			onsubmit={onExpenseSubmit}
+			onsubmit={handleExpenseSubmit}
 			disabled={$addExpense.isPending}
 			oncancel={() => (showAddExpenseDialog = false)}
 			participants={$bill.data.participants}
@@ -146,6 +167,23 @@
 		padding: calc(2 * var(--base-spacing)) 0;
 		height: 100%;
 		overflow: auto;
+	}
+
+	.bill__title {
+		display: flex;
+		align-items: center;
+		gap: var(--base-spacing);
+		margin: calc(3 * var(--base-spacing)) 0;
+	}
+
+	.bill__title > h1 {
+		margin: 0;
+	}
+
+	.bill__title > form {
+		display: flex;
+		align-items: center;
+		gap: var(--base-spacing);
 	}
 
 	hr {
