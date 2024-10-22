@@ -11,6 +11,7 @@
   import ThemeToggle from '$lib/components/ThemeToggle.svelte';
   import ParticipantsForm from '$lib/forms/ParticipantsForm.svelte';
   import ExpenseDialog from '$lib/layouts/ExpenseDialog.svelte';
+  import simplifyDebts from '$lib/utils/debts';
   import { derived } from 'svelte/store';
 
   let showEditParticipantsForm = $state(false);
@@ -44,6 +45,13 @@
     expenses,
     ($expenses) => $expenses.data?.reduce((acc, { price }) => acc + price, 0) ?? 0
   );
+
+  $effect(() => {
+    if ($expenses.data && $expenses.data?.length > 0)
+      console.log({
+        debts: simplifyDebts($expenses.data)
+      });
+  });
 </script>
 
 {#if $bill.isLoading}
