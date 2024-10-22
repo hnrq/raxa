@@ -7,25 +7,29 @@
     oncancel,
     participants,
     initialValue,
-    disabled
+    disabled,
+    form = $bindable()
   }: {
     oncancel: () => void;
     disabled?: boolean;
     onsubmit: (event: SubmitEvent) => void | Promise<void>;
     participants: string[];
-    initialValue?: Expense;
+    initialValue?: Expense | undefined;
+    form?: HTMLFormElement;
   } = $props();
 </script>
 
-<form class="expense-form" {onsubmit}>
+<form class="expense-form" bind:this={form} {onsubmit}>
   <label>
     Title:
+    <!-- svelte-ignore a11y_autofocus -->
     <input
       {disabled}
       type="text"
       name="title"
       placeholder="Soda"
       value={initialValue?.title}
+      autofocus
       required
     />
   </label>
@@ -61,7 +65,7 @@
     {/each}
   </label>
   <div class="expense-form__actions">
-    <FormActions {disabled} {oncancel} saveLabel="Add" />
+    <FormActions {disabled} {oncancel} />
   </div>
 </form>
 

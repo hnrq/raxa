@@ -1,7 +1,7 @@
 <script lang="ts">
   import FormActions from '$lib/components/FormActions.svelte';
 
-  const {
+  let {
     onsubmit,
     initialValue,
     oncancel,

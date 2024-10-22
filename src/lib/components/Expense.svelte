@@ -1,31 +1,7 @@
 <script lang="ts">
-  import createUpdateExpenseMutation from '$lib/api/operations/createUpdateExpenseMutation';
   import type { Expense } from '$lib/types';
-  import FormActions from './FormActions.svelte';
 
-  let showEditParticipantsForm = $state(false);
-
-  const updateParticipants = createUpdateExpenseMutation({
-    onSuccess: () => {
-      showEditParticipantsForm = false;
-    }
-  });
-
-  const {
-    billId,
-    expense,
-    participants
-  }: { billId: string; participants: string[]; expense: Expense } = $props();
-
-  const handleUpdateParticipants = async (event: SubmitEvent) => {
-    event.preventDefault();
-    const formData = new FormData(event.target as HTMLFormElement);
-    $updateParticipants.mutate({
-      id: billId,
-      expenseId: expense.id,
-      participants: formData.getAll('participants') as string[]
-    });
-  };
+  let { expense, onedit }: { expense: Expense; onedit: () => void } = $props();
 </script>
 
 <div class="expense">
@@ -37,31 +13,10 @@
   <small class="expense__paid-by">
     Paid by {expense.paidBy}
   </small>
-  {#if showEditParticipantsForm}
-    <form onsubmit={handleUpdateParticipants}>
-      {#each participants as participant}
-        <label>
-          <input
-            type="checkbox"
-            name="participants"
-            value={participant}
-            checked={expense.participants.includes(participant)}
-            disabled={$updateParticipants.isPending}
-          />
-          {participant}
-        </label>
-      {/each}
-      <FormActions
-        oncancel={() => (showEditParticipantsForm = false)}
-        disabled={$updateParticipants.isPending}
-      />
-    </form>
-  {:else}
-    <small class="expense__used-by">
-      Divided with {expense.participants.join(', ')}
-      <button onclick={() => (showEditParticipantsForm = true)}> Edit</button>
-    </small>
-  {/if}
+  <small class="expense__used-by">
+    Divided by {expense.participants.join(', ')}
+    <button onclick={onedit}>Edit</button>
+  </small>
 </div>
 
 <style>

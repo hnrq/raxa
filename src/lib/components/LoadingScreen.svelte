@@ -1,5 +1,5 @@
 <script lang="ts">
-  const { message = 'Loading...', subtitle }: { message?: string; subtitle?: string } = $props();
+  let { message = 'Loading...', subtitle }: { message?: string; subtitle?: string } = $props();
 </script>
 
 <div class="loading-screen">
@@ -16,7 +16,8 @@
     flex-direction: column;
     text-align: center;
     align-items: center;
-    height: 100vh;
+    height: 100%;
+    width: 100%;
   }
 
   .loading-screen small {

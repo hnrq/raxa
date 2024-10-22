@@ -1,5 +1,5 @@
 <script lang="ts">
-  const {
+  let {
     oncancel,
     saveLabel = 'Save',
     cancelLabel = 'Cancel',

@@ -1,5 +1,5 @@
 import { db } from '$lib/firebase/client';
-import type { Bill } from '$lib/types';
+import type { Bill, Expense } from '$lib/types';
 import { createMutation, useQueryClient, type CreateMutationOptions } from '@tanstack/svelte-query';
 import { doc, updateDoc } from 'firebase/firestore/lite';
 
@@ -14,7 +14,7 @@ const createUpdateParticipantsMutation = (
   const queryClient = useQueryClient();
 
   const cascadeUpdateExpenseParticipants = async (id: string, participants: string[]) => {
-    const { expenses } = queryClient.getQueryData<Bill>(['bills', id])!;
+    const expenses = queryClient.getQueryData<Expense[]>(['bills', id, 'expenses'])!;
 
     const editedExpenses = expenses
       .map((expense) => {
@@ -31,7 +31,7 @@ const createUpdateParticipantsMutation = (
       .filter(Boolean);
 
     if (editedExpenses.length > 0)
-      queryClient.setQueryData(['bills', id], (prev: Bill) => ({
+      queryClient.setQueryData(['bills', id, 'expenses'], (prev: Bill) => ({
         ...prev,
         expenses: editedExpenses
       }));

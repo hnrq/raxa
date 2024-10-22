@@ -1,27 +1,26 @@
 <script lang="ts">
+  import { pushState, replaceState } from '$app/navigation';
   import { page } from '$app/stores';
-  import createAddExpenseMutation from '$lib/api/operations/createAddExpenseMutation';
   import createBillQuery from '$lib/api/operations/createBillQuery';
+  import createExpensesQuery from '$lib/api/operations/createExpensesQuery';
   import createUpdateParticipantsMutation from '$lib/api/operations/createUpdateParticipantsMutation';
   import createUpdateTitleMutation from '$lib/api/operations/createUpdateTitleMutation';
-  import Dialog from '$lib/components/Dialog.svelte';
   import Expense from '$lib/components/Expense.svelte';
   import FormActions from '$lib/components/FormActions.svelte';
   import LoadingScreen from '$lib/components/LoadingScreen.svelte';
   import ThemeToggle from '$lib/components/ThemeToggle.svelte';
-  import ExpenseForm from '$lib/forms/ExpenseForm.svelte';
   import ParticipantsForm from '$lib/forms/ParticipantsForm.svelte';
+  import ExpenseDialog from '$lib/layouts/ExpenseDialog.svelte';
   import { derived } from 'svelte/store';
 
-  let showAddExpenseDialog = $state(false);
   let showEditParticipantsForm = $state(false);
   let showEditTitleForm = $state(false);
 
   const bill = createBillQuery({ id: $page.params.id });
+  const expenses = createExpensesQuery({ id: $page.params.id });
   const updateParticipants = createUpdateParticipantsMutation({
     onSuccess: () => (showEditParticipantsForm = false)
   });
-  const addExpense = createAddExpenseMutation();
   const updateTitle = createUpdateTitleMutation({
     onSuccess: () => (showEditTitleForm = false)
   });
@@ -41,31 +40,9 @@
     $updateTitle.mutate({ id: $page.params.id, title: formData.get('title') as string });
   };
 
-  const handleExpenseSubmit = async (event: SubmitEvent) => {
-    event.preventDefault();
-    const formData = new FormData(event.target as HTMLFormElement);
-    $addExpense.mutate(
-      {
-        expense: {
-          title: formData.get('title') as string,
-          price: Number.parseFloat(formData.get('price') as string),
-          paidBy: formData.get('paidBy') as string,
-          participants: formData.getAll('participants') as string[]
-        },
-        id: $page.params.id
-      },
-      {
-        onSuccess: () => {
-          showAddExpenseDialog = false;
-          (event.target as HTMLFormElement).reset();
-        }
-      }
-    );
-  };
-
   const total = derived(
-    bill,
-    ($bill) => $bill.data?.expenses.reduce((acc, { price }) => acc + price, 0) ?? 0
+    expenses,
+    ($expenses) => $expenses.data?.reduce((acc, { price }) => acc + price, 0) ?? 0
   );
 </script>
 
@@ -77,8 +54,10 @@
     <div class="bill__title">
       {#if showEditTitleForm}
         <form onsubmit={handleChangeTitle}>
+          <!-- svelte-ignore a11y_autofocus -->
           <input
             disabled={$updateTitle.isPending}
+            autofocus
             type="text"
             name="title"
             value={$bill.data.title}
@@ -108,13 +87,30 @@
       {/if}
     </div>
     <hr />
-    <button type="button" class="bill__add-expense" onclick={() => (showAddExpenseDialog = true)}>
+    <button
+      type="button"
+      class="bill__add-expense"
+      disabled={$expenses.isLoading}
+      onclick={() =>
+        pushState('', {
+          showSaveExpenseModal: true
+        })}
+    >
       + Add expense
     </button>
     <div class="bill__expenses">
-      {#each $bill.data.expenses as expense}
-        <Expense {expense} billId={$page.params.id} participants={$bill.data.participants} />
-      {/each}
+      {#if $expenses.isLoading}
+        <LoadingScreen />
+      {:else}
+        {#each $expenses.data ?? [] as expense}
+          <Expense
+            {expense}
+            onedit={() => {
+              pushState('', { showSaveExpenseModal: true, expenseId: expense.id });
+            }}
+          />
+        {/each}
+      {/if}
     </div>
     <hr />
     <div class="bill__total">
@@ -122,16 +118,14 @@
       <h1>${Number($total).toFixed(2)}</h1>
     </div>
   </div>
-
-  <Dialog bind:open={showAddExpenseDialog}>
-    <ExpenseForm
-      onsubmit={handleExpenseSubmit}
-      disabled={$addExpense.isPending}
-      oncancel={() => (showAddExpenseDialog = false)}
-      participants={$bill.data.participants}
-    />
-  </Dialog>
 {/if}
+
+<ExpenseDialog
+  open={$page.state.showSaveExpenseModal}
+  id={$page.params.id}
+  expenseId={$page.state.expenseId}
+  onclose={() => replaceState(`/${$page.params.id}`, {})}
+/>
 
 <style>
   .bill {

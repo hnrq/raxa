@@ -10,7 +10,7 @@ button:hover {
   cursor: pointer;
 }
 
-button.button.button--text {
+button.button--text {
   color: var(--color-primary);
   background-color: transparent;
 }

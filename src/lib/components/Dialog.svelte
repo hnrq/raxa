@@ -1,9 +1,18 @@
 <script lang="ts">
   import { onMount, type Snippet } from 'svelte';
 
-  let { open = $bindable(), children }: { open: boolean; children: Snippet } = $props();
+  let {
+    open = $bindable(),
+    children,
+    onclose
+  }: { open: boolean; children: Snippet; onclose?: () => void } = $props();
 
   let dialog: HTMLDialogElement;
+
+  const handleClose = () => {
+    open = false;
+    onclose?.();
+  };
 
   $effect(() => {
     if (open) dialog.showModal();
@@ -12,7 +21,7 @@
 
   onMount(() => {
     const clickEvent = (event: MouseEvent) => {
-      if (event.target === dialog) open = false;
+      if (event.target === dialog) handleClose();
     };
     dialog.addEventListener('click', clickEvent);
 
@@ -23,7 +32,7 @@
 </script>
 
 <dialog bind:this={dialog}>
-  <button onclick={() => (open = false)}> Close </button>
+  <button onclick={handleClose}>Close</button>
   {@render children()}
 </dialog>
 

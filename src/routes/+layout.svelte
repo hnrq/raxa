@@ -4,8 +4,9 @@
   import '$lib/theme/index.css';
   import { QueryClientProvider } from '@tanstack/svelte-query';
   import { onMount, type Snippet } from 'svelte';
+  import { SvelteQueryDevtools } from '@tanstack/svelte-query-devtools';
 
-  const { children }: { children: Snippet } = $props();
+  let { children }: { children: Snippet } = $props();
 
   onMount(() => {
     if (browser)
@@ -21,5 +22,6 @@
 </script>
 
 <QueryClientProvider {client}>
+  <SvelteQueryDevtools />
   {@render children()}
 </QueryClientProvider>
