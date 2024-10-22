@@ -21,7 +21,6 @@
 		onSuccess: () => (showEditParticipantsForm = false)
 	});
 	const addExpense = createAddExpenseMutation();
-	const updateExpenseParticipants = createUpdateParticipantsMutation();
 	const updateTitle = createUpdateTitleMutation({
 		onSuccess: () => (showEditTitleForm = false)
 	});
@@ -62,9 +61,6 @@
 			}
 		);
 	};
-
-	const onUpdateExpenseParticipants = (id: string) => async (participants: string[]) =>
-		$updateExpenseParticipants.mutate({ id, participants });
 
 	const total = derived(
 		bill,
@@ -115,11 +111,7 @@
 		</button>
 		<div class="bill__expenses">
 			{#each $bill.data.expenses as expense}
-				<Expense
-					{expense}
-					onUpdateParticipants={onUpdateExpenseParticipants(expense.id)}
-					participants={$bill.data.participants}
-				/>
+				<Expense {expense} billId={$page.params.id} participants={$bill.data.participants} />
 			{/each}
 		</div>
 		<hr />

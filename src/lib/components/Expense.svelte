@@ -1,24 +1,30 @@
 <script lang="ts">
+	import createUpdateExpenseParticipantsMutation from '$lib/api/operations/createUpdateExpenseParticipantsMutation';
 	import type { Expense } from '$lib/types';
 	import FormActions from './FormActions.svelte';
 
 	let showEditParticipantsForm = $state(false);
 
+	const updateParticipants = createUpdateExpenseParticipantsMutation({
+		onSuccess: () => {
+			showEditParticipantsForm = false;
+		}
+	});
+
 	const {
+		billId,
 		expense,
-		onUpdateParticipants,
 		participants
-	}: {
-		participants: string[];
-		expense: Expense;
-		onUpdateParticipants: (participants: string[]) => Promise<void>;
-	} = $props();
+	}: { billId: string; participants: string[]; expense: Expense } = $props();
 
 	const handleUpdateParticipants = async (event: SubmitEvent) => {
 		event.preventDefault();
 		const formData = new FormData(event.target as HTMLFormElement);
-		await onUpdateParticipants(formData.getAll('participants') as string[]);
-		showEditParticipantsForm = false;
+		$updateParticipants.mutate({
+			id: billId,
+			expenseId: expense.id,
+			participants: formData.getAll('participants') as string[]
+		});
 	};
 </script>
 
@@ -40,11 +46,15 @@
 						name="participants"
 						value={participant}
 						checked={expense.participants.includes(participant)}
+						disabled={$updateParticipants.isPending}
 					/>
 					{participant}
 				</label>
 			{/each}
-			<FormActions oncancel={() => (showEditParticipantsForm = false)} />
+			<FormActions
+				oncancel={() => (showEditParticipantsForm = false)}
+				disabled={$updateParticipants.isPending}
+			/>
 		</form>
 	{:else}
 		<small class="expense__used-by">
