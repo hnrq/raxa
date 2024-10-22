@@ -2,6 +2,10 @@ button {
 	border: none;
 }
 
+button:hover:disabled {
+	cursor: wait;
+}
+
 button:hover {
 	cursor: pointer;
 }

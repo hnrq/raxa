@@ -16,6 +16,10 @@
 	color: var(--text-high);
 }
 
+*:disabled {
+	opacity: 0.7;
+}
+
 html {
 	font-size: 18px;
 }
