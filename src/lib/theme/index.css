@@ -23,6 +23,7 @@
 * {
 	font-family: 'Roboto Mono Variable', monospace;
 	color: var(--text-high);
+	transition: color 0.2s ease-in-out;
 }
 
 *:disabled {
@@ -34,6 +35,7 @@ html {
 }
 
 body {
+	transition: background-color 0.2s ease-in-out;
 	background-color: var(--color-foreground);
 	margin: 0;
 }
