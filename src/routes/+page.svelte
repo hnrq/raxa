@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
+	import LoadingScreen from '$lib/components/LoadingScreen.svelte';
 	import { db } from '$lib/firebase/client';
 	import authStore from '$lib/stores/auth';
 	import { addDoc, collection } from 'firebase/firestore/lite';
@@ -21,3 +22,5 @@
 		}
 	});
 </script>
+
+<LoadingScreen message="Generating a new bill..." subtitle="No deadbeats left behind" />

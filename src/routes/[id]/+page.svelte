@@ -5,6 +5,7 @@
 	import createUpdateParticipantsMutation from '$lib/api/operations/createUpdateParticipantsMutation';
 	import Dialog from '$lib/components/Dialog.svelte';
 	import Expense from '$lib/components/Expense.svelte';
+	import LoadingScreen from '$lib/components/LoadingScreen.svelte';
 	import ExpenseForm from '$lib/forms/ExpenseForm.svelte';
 	import ParticipantsForm from '$lib/forms/ParticipantsForm.svelte';
 	import { derived } from 'svelte/store';
@@ -62,9 +63,13 @@
 </script>
 
 {#if $bill.isLoading}
-	<h4>Loading...</h4>
+	<LoadingScreen />
 {:else if $bill.data !== undefined}
 	<div class="bill">
+		<div class="bill__title">
+			<h1>{$bill.data.title || 'Untitled bill'}</h1>
+			<button type="button">Edit</button>
+		</div>
 		<div class="bill__participants">
 			{#if showEditParticipantsForm}
 				<ParticipantsForm
@@ -79,23 +84,22 @@
 			{/if}
 		</div>
 		<hr />
+		<button
+			type="button"
+			class="bill__add-expense"
+			disabled={$bill.data.participants.length === 0}
+			onclick={() => (showAddExpenseDialog = true)}
+		>
+			+ Add expense
+		</button>
 		<div class="bill__expenses">
-			<button
-				type="button"
-				disabled={$bill.data.participants.length === 0}
-				onclick={() => (showAddExpenseDialog = true)}
-			>
-				+ Add expense
-			</button>
-			<div>
-				{#each $bill.data.expenses as expense}
-					<Expense
-						{expense}
-						onUpdateParticipants={onUpdateExpenseParticipants(expense.id)}
-						participants={$bill.data.participants}
-					/>
-				{/each}
-			</div>
+			{#each $bill.data.expenses as expense}
+				<Expense
+					{expense}
+					onUpdateParticipants={onUpdateExpenseParticipants(expense.id)}
+					participants={$bill.data.participants}
+				/>
+			{/each}
 		</div>
 		<hr />
 		<div class="bill__total">
@@ -107,6 +111,7 @@
 	<Dialog bind:open={showAddExpenseDialog}>
 		<ExpenseForm
 			onsubmit={onExpenseSubmit}
+			disabled={$addExpense.isPending}
 			oncancel={() => (showAddExpenseDialog = false)}
 			participants={$bill.data.participants}
 		/>
@@ -119,14 +124,18 @@
 		height: 100vh;
 		display: flex;
 		flex-direction: column;
-		padding: calc(2 * var(--base-spacing));
-		gap: var(--base-spacing);
+		padding-bottom: calc(4 * var(--base-spacing));
+	}
+
+	.bill > * {
+		padding: 0 calc(2 * var(--base-spacing));
 	}
 
 	.bill__participants {
 		display: flex;
 		flex-wrap: wrap;
 		gap: var(--base-spacing);
+		margin-bottom: calc(2 * var(--base-spacing));
 	}
 
 	.bill__expenses {
@@ -134,9 +143,18 @@
 		display: flex;
 		flex-direction: column;
 		gap: var(--base-spacing);
-		border-top: 1px dashed var(--text-low);
-		border-bottom: 1px dashed var(--text-low);
 		padding: calc(2 * var(--base-spacing)) 0;
+		height: 100%;
+		overflow: auto;
+	}
+
+	hr {
+		border: 1px dashed var(--text-low);
+		margin: 0;
+	}
+
+	.bill__add-expense {
+		padding: var(--base-spacing);
 	}
 
 	.bill__total {
