@@ -10,8 +10,8 @@
   import LoadingScreen from '$lib/components/LoadingScreen.svelte';
   import ThemeToggle from '$lib/components/ThemeToggle.svelte';
   import ParticipantsForm from '$lib/forms/ParticipantsForm.svelte';
+  import DebtsDialog from '$lib/layouts/DebtsDialog.svelte';
   import ExpenseDialog from '$lib/layouts/ExpenseDialog.svelte';
-  import simplifyDebts from '$lib/utils/debts';
   import { derived } from 'svelte/store';
 
   let showEditParticipantsForm = $state(false);
@@ -45,13 +45,6 @@
     expenses,
     ($expenses) => $expenses.data?.reduce((acc, { price }) => acc + price, 0) ?? 0
   );
-
-  $effect(() => {
-    if ($expenses.data && $expenses.data?.length > 0)
-      console.log({
-        debts: simplifyDebts($expenses.data)
-      });
-  });
 </script>
 
 {#if $bill.isLoading}
@@ -99,10 +92,7 @@
       type="button"
       class="bill__add-expense"
       disabled={$expenses.isLoading}
-      onclick={() =>
-        pushState('', {
-          showSaveExpenseModal: true
-        })}
+      onclick={() => pushState('', { modalShown: 'expense' })}
     >
       + Add expense
     </button>
@@ -113,13 +103,12 @@
         {#each $expenses.data ?? [] as expense}
           <Expense
             {expense}
-            onedit={() => {
-              pushState('', { showSaveExpenseModal: true, expenseId: expense.id });
-            }}
+            onedit={() => pushState('', { modalShown: 'expense', expenseId: expense.id })}
           />
         {/each}
       {/if}
     </div>
+    <button type="button" onclick={() => pushState('', { modalShown: 'debts' })}>Show Debts</button>
     <hr />
     <div class="bill__total">
       <small>Total:</small>
@@ -129,9 +118,15 @@
 {/if}
 
 <ExpenseDialog
-  open={$page.state.showSaveExpenseModal}
+  open={$page.state.modalShown === 'expense'}
   id={$page.params.id}
   expenseId={$page.state.expenseId}
+  onclose={() => replaceState(`/${$page.params.id}`, {})}
+/>
+
+<DebtsDialog
+  open={$page.state.modalShown === 'debts'}
+  id={$page.params.id}
   onclose={() => replaceState(`/${$page.params.id}`, {})}
 />
 

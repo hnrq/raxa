@@ -37,6 +37,10 @@
 </dialog>
 
 <style>
+  dialog {
+    background: var(--color-background);
+  }
+
   dialog[open] {
     padding: 0;
     border: 0;

@@ -2,12 +2,14 @@
 @import '@fontsource-variable/roboto-mono';
 
 .light {
-  --color-foreground: #fff;
+  --color-background: #fff;
+  --color-foreground: #000;
   --text-base: 0, 0, 0;
 }
 
 .dark {
-  --color-foreground: #000;
+  --color-background: #000;
+  --color-foreground: #fff;
   --text-base: 255, 255, 255;
 }
 
@@ -36,8 +38,14 @@ html {
 
 body {
   transition: background-color 0.2s ease-in-out;
-  background-color: var(--color-foreground);
+  background-color: var(--color-background);
   margin: 0;
   height: 100vh;
   overflow: auto;
+}
+
+input,
+textarea,
+select {
+  color: var(--color-background);
 }

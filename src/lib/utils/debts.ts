@@ -5,7 +5,7 @@ import type { Expense } from '$lib/types';
 type Debt = {
   from: string;
   to: string;
-  value: number;
+  amount: number;
 };
 
 const simplifyDebts = async (expenses: Expense[]) => {
@@ -33,8 +33,8 @@ const simplifyDebts = async (expenses: Expense[]) => {
         if (!vis.has(tr2) && tr1 !== tr2) {
           if (transactionsByUser.get(tr2) == -transactionsByUser.get(tr1)) {
             if (transactionsByUser.get(tr2) > transactionsByUser.get(tr1))
-              splits.push({ from: tr1, to: tr2, value: transactionsByUser.get(tr2) });
-            else splits.push({ from: tr2, to: tr1, value: transactionsByUser.get(tr1) });
+              splits.push({ from: tr1, to: tr2, amount: transactionsByUser.get(tr2) });
+            else splits.push({ from: tr2, to: tr1, amount: transactionsByUser.get(tr1) });
             transactionsByUser.set(tr2, 0);
             transactionsByUser.set(tr1, 0);
           }
@@ -73,7 +73,7 @@ const simplifyDebts = async (expenses: Expense[]) => {
       transactionsByUser.set(minMax[0], transactionsByUser.get(minMax[0]) + min_value);
       transactionsByUser.set(minMax[1], transactionsByUser.get(minMax[1]) - min_value);
 
-      splits.push({ from: minMax[0], to: minMax[1], value: min_value });
+      splits.push({ from: minMax[0], to: minMax[1], amount: min_value });
       helper();
     }
   };
