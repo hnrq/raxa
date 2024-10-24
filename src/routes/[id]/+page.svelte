@@ -6,10 +6,10 @@
   import createUpdateParticipantsMutation from '$lib/api/operations/createUpdateParticipantsMutation';
   import createUpdateTitleMutation from '$lib/api/operations/createUpdateTitleMutation';
   import Expense from '$lib/components/Expense.svelte';
-  import FormActions from '$lib/components/FormActions.svelte';
   import LoadingScreen from '$lib/components/LoadingScreen.svelte';
   import ThemeToggle from '$lib/components/ThemeToggle.svelte';
-  import ParticipantsForm from '$lib/forms/ParticipantsForm.svelte';
+  import ParticipantsForm from '$lib/forms/BillForm.svelte';
+  import TitleForm from '$lib/forms/TitleForm.svelte';
   import DebtsDialog from '$lib/layouts/DebtsDialog.svelte';
   import DeleteExpenseDialog from '$lib/layouts/DeleteExpenseDialog.svelte';
   import ExpenseDialog from '$lib/layouts/ExpenseDialog.svelte';
@@ -27,7 +27,7 @@
     onSuccess: () => (showEditTitleForm = false)
   });
 
-  const handleParticipantsUpdate = async (event: SubmitEvent) => {
+  const handleUpdateParticipants = async (event: SubmitEvent) => {
     event.preventDefault();
     const formData = new FormData(event.target as HTMLFormElement);
     $updateParticipants.mutate({
@@ -36,7 +36,7 @@
     });
   };
 
-  const handleChangeTitle = (event: SubmitEvent) => {
+  const handleUpdateTitle = (event: SubmitEvent) => {
     event.preventDefault();
     const formData = new FormData(event.target as HTMLFormElement);
     $updateTitle.mutate({ id: $page.params.id, title: formData.get('title') as string });
@@ -55,23 +55,14 @@
     <ThemeToggle class="theme-toggle" />
     <div class="bill__title">
       {#if showEditTitleForm}
-        <form onsubmit={handleChangeTitle}>
-          <!-- svelte-ignore a11y_autofocus -->
-          <input
-            disabled={$updateTitle.isPending}
-            autofocus
-            type="text"
-            name="title"
-            value={$bill.data.title}
-            required
-          />
-          <FormActions
-            disabled={$updateTitle.isPending}
-            oncancel={() => (showEditTitleForm = false)}
-          />
-        </form>
+        <TitleForm
+          initialValue={$bill.data.title}
+          disabled={$updateTitle.isPending}
+          onsubmit={handleUpdateTitle}
+          oncancel={() => (showEditTitleForm = false)}
+        />
       {:else}
-        <h1>{$bill.data.title || 'Untitled bill'}</h1>
+        <h1>{$bill.data.title ?? 'Untitled bill'}</h1>
         <button type="button" class="button--text" onclick={() => (showEditTitleForm = true)}>
           Edit
         </button>
@@ -81,7 +72,7 @@
       {#if showEditParticipantsForm}
         <ParticipantsForm
           disabled={$updateParticipants.isPending}
-          onsubmit={handleParticipantsUpdate}
+          onsubmit={handleUpdateParticipants}
           oncancel={() => (showEditParticipantsForm = false)}
           initialValue={$bill.data.participants.join(', ')}
         />
@@ -182,12 +173,6 @@
 
   .bill__title > h1 {
     margin: 0;
-  }
-
-  .bill__title > form {
-    display: flex;
-    align-items: center;
-    gap: var(--base-spacing);
   }
 
   hr {
