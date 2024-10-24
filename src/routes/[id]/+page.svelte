@@ -11,6 +11,7 @@
   import ThemeToggle from '$lib/components/ThemeToggle.svelte';
   import ParticipantsForm from '$lib/forms/ParticipantsForm.svelte';
   import DebtsDialog from '$lib/layouts/DebtsDialog.svelte';
+  import DeleteExpenseDialog from '$lib/layouts/DeleteExpenseDialog.svelte';
   import ExpenseDialog from '$lib/layouts/ExpenseDialog.svelte';
   import { derived } from 'svelte/store';
 
@@ -108,6 +109,7 @@
           <Expense
             {expense}
             onedit={() => pushState('', { modalShown: 'expense', expenseId: expense.id })}
+            ondelete={() => pushState('', { modalShown: 'delete-expense', expenseId: expense.id })}
           />
         {/each}
       {/if}
@@ -131,6 +133,13 @@
 <DebtsDialog
   open={$page.state.modalShown === 'debts'}
   id={$page.params.id}
+  onclose={() => replaceState(`/${$page.params.id}`, {})}
+/>
+
+<DeleteExpenseDialog
+  open={$page.state.modalShown === 'delete-expense'}
+  id={$page.params.id}
+  expenseId={$page.state.expenseId}
   onclose={() => replaceState(`/${$page.params.id}`, {})}
 />
 

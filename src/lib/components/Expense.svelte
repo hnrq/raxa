@@ -1,7 +1,11 @@
 <script lang="ts">
   import type { Expense } from '$lib/types';
 
-  let { expense, onedit }: { expense: Expense; onedit: () => void } = $props();
+  let {
+    expense,
+    onedit,
+    ondelete
+  }: { expense: Expense; onedit: () => void; ondelete: () => void } = $props();
 </script>
 
 <div class="expense">
@@ -15,8 +19,11 @@
   </small>
   <small class="expense__used-by">
     Divided by {expense.participants.join(', ')}
-    <button onclick={onedit} class="button--text">Edit</button>
   </small>
+  <div class="expense__actions">
+    <button onclick={onedit} class="button--text">Edit</button>
+    <button onclick={ondelete} class="button--text">Delete</button>
+  </div>
 </div>
 
 <style>
@@ -45,5 +52,11 @@
   .expense__used-by,
   .expense__paid-by {
     color: var(--text-medium);
+  }
+
+  .expense__actions {
+    display: flex;
+    gap: var(--base-spacing);
+    margin-left: auto;
   }
 </style>
