@@ -15,7 +15,7 @@
   </small>
   <small class="expense__used-by">
     Divided by {expense.participants.join(', ')}
-    <button onclick={onedit}>Edit</button>
+    <button onclick={onedit} class="button--text">Edit</button>
   </small>
 </div>
 

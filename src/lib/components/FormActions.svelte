@@ -13,7 +13,7 @@
 </script>
 
 <div class="form-actions">
-  <button {disabled} type="reset" onclick={oncancel}>{cancelLabel}</button>
+  <button {disabled} type="reset" onclick={oncancel} class="button--text">{cancelLabel}</button>
   <button {disabled} type="submit">{saveLabel}</button>
 </div>
 

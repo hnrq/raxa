@@ -8,7 +8,36 @@ type Debt = {
   amount: number;
 };
 
-const simplifyDebts = async (expenses: Expense[]) => {
+type DebtRelation = { [payer: string]: { [consumer: string]: number } };
+
+export const calcDebts = (expenses: Expense[]) => {
+  const debts: DebtRelation = {};
+
+  expenses.forEach(({ price, paidBy, participants }) => {
+    const share = price / participants.length;
+    if (!debts[paidBy]) debts[paidBy] = {};
+
+    // Each consumer owes the paidBy their share
+    participants.forEach((consumer) => {
+      if (consumer !== paidBy) debts[paidBy][consumer] = (debts[paidBy][consumer] ?? 0) + share;
+    });
+  });
+
+  return Object.entries(debts).reduce(
+    (acc, [payer, consumers]) =>
+      [
+        ...acc,
+        ...Object.entries(consumers).map(([consumer, amount]) => ({
+          from: consumer,
+          to: payer,
+          amount
+        }))
+      ] as Debt[],
+    [] as Debt[]
+  );
+};
+
+const simplifiedDebts = (expenses: Expense[]) => {
   const splits: Debt[] = [];
   const transactionsByUser = new Map();
 
@@ -84,4 +113,4 @@ const simplifyDebts = async (expenses: Expense[]) => {
   return splits;
 };
 
-export default simplifyDebts;
+export default simplifiedDebts;

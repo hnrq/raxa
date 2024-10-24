@@ -51,7 +51,7 @@
   <LoadingScreen />
 {:else if $bill.data !== undefined}
   <div class="bill">
-    <ThemeToggle />
+    <ThemeToggle class="theme-toggle" />
     <div class="bill__title">
       {#if showEditTitleForm}
         <form onsubmit={handleChangeTitle}>
@@ -71,7 +71,9 @@
         </form>
       {:else}
         <h1>{$bill.data.title || 'Untitled bill'}</h1>
-        <button type="button" onclick={() => (showEditTitleForm = true)}>Edit</button>
+        <button type="button" class="button--text" onclick={() => (showEditTitleForm = true)}>
+          Edit
+        </button>
       {/if}
     </div>
     <div class="bill__participants">
@@ -84,7 +86,9 @@
         />
       {:else}
         <small>Divided by {$bill.data.participants.join(', ')}</small>
-        <button onclick={() => (showEditParticipantsForm = true)}>Edit</button>
+        <button class="button--text" onclick={() => (showEditParticipantsForm = true)}>
+          Edit
+        </button>
       {/if}
     </div>
     <hr />
@@ -193,5 +197,10 @@
 
   .bill__total > h1 {
     margin: 0;
+  }
+
+  :global(.theme-toggle) {
+    margin-left: auto;
+    padding: var(--base-spacing);
   }
 </style>

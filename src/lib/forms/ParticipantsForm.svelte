@@ -15,13 +15,14 @@
 </script>
 
 <form {onsubmit} class="participants-form">
-  <label for="participants"> Participants:</label>
+  <!-- svelte-ignore a11y_autofocus -->
   <textarea
     placeholder="Type participants separated by comma"
     name="participants"
     id="participants"
     value={initialValue}
     required
+    autofocus
     {disabled}
   ></textarea>
   <div class="participants-form__actions">
@@ -32,6 +33,7 @@
 <style>
   .participants-form {
     display: flex;
+    width: 100%;
     flex-direction: column;
     gap: var(--base-spacing);
   }

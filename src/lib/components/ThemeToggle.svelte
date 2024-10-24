@@ -1,6 +1,7 @@
 <script lang="ts">
   import localStore from '$lib/stores/localStore.svelte';
 
+  let { class: className = '' } = $props();
   let theme = localStore<'light' | 'dark'>('theme');
 
   const toggleTheme = () => theme?.set(theme.value === 'light' ? 'dark' : 'light');
@@ -11,4 +12,6 @@
   });
 </script>
 
-<button type="submit" onclick={toggleTheme}>{theme?.value === 'light' ? 'LIGHT' : 'DARK'}</button>
+<button type="submit" onclick={toggleTheme} class={`button--text ${className}`}>
+  {theme?.value === 'light' ? 'LIGHT' : 'DARK'}
+</button>

@@ -1,26 +1,36 @@
 <script lang="ts">
   import createExpensesQuery from '$lib/api/operations/createExpensesQuery';
   import Dialog from '$lib/components/Dialog.svelte';
-  import simplifyDebts from '$lib/utils/debts';
-  import LoadingScreen from '$lib/components/LoadingScreen.svelte';
+  import simplifiedDebts, { calcDebts } from '$lib/utils/debts';
 
   let { id, open, onclose }: { id: string; open: boolean; onclose: () => void } = $props();
   const expenses = createExpensesQuery({ id });
+  let simplifyDebts = $state(true);
+
+  let debtsSimplified = $derived(simplifiedDebts($expenses.data ?? []));
+  let debtsComplete = $derived(calcDebts($expenses.data ?? []));
+
+  let debts = $derived(simplifyDebts ? debtsSimplified : debtsComplete);
 </script>
 
 <Dialog {open} {onclose}>
   <div class="debts">
     <h3>Who are the deadbeats?</h3>
-    {#await simplifyDebts($expenses.data ?? [])}
-      <LoadingScreen />
+    <label>
+      <input type="checkbox" bind:checked={simplifyDebts} />
+      Simplify Debts
+    </label>
+    {#if debts.length === 0}
       <p>No debts</p>
-    {:then debts}
+    {:else}
       <ul>
         {#each debts as { from, to, amount }}
-          <li><b>{from}</b> owes <b>${Number(amount).toFixed()}</b> to <b>{to}</b></li>
+          <li>
+            <small><b>{from}</b> owes <b>${Number(amount).toFixed()}</b> to <b>{to}</b></small>
+          </li>
         {/each}
       </ul>
-    {/await}
+    {/if}
   </div>
 </Dialog>
 

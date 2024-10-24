@@ -32,7 +32,7 @@
 </script>
 
 <dialog bind:this={dialog}>
-  <button onclick={handleClose}>Close</button>
+  <button onclick={handleClose} class="button--text">Close</button>
   {@render children()}
 </dialog>
 
@@ -47,5 +47,13 @@
     display: flex;
     flex-direction: column;
     gap: var(--base-spacing);
+  }
+
+  button {
+    margin-left: auto;
+  }
+
+  dialog::backdrop {
+    background-color: var(--text-low);
   }
 </style>
