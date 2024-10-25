@@ -59,7 +59,13 @@
     Used by:
     {#each participants as participant}
       <label>
-        <input {disabled} type="checkbox" name="participants" value={participant} checked />
+        <input
+          {disabled}
+          type="checkbox"
+          name="participants"
+          value={participant}
+          checked={!initialValue?.participants || initialValue.participants.includes(participant)}
+        />
         {participant}
       </label>
     {/each}

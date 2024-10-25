@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { page } from '$app/stores';
   import client from '$lib/api/client';
   import createBillQuery from '$lib/api/operations/createBillQuery';
   import createUpdateExpenseMutation from '$lib/api/operations/createSaveExpenseMutation';
@@ -15,32 +14,16 @@
   }: { id: string; expenseId: string | undefined; open: boolean; onclose: () => void } = $props();
   let form: HTMLFormElement | undefined = $state();
 
-  const bill = createBillQuery({ id: id });
+  const bill = createBillQuery({ id });
 
   let expense: Expense | undefined = $state();
-
-  $effect(() => {
-    if (id !== undefined && expenseId !== undefined)
-      expense = client.getQueryData<Expense>(['bills', id, 'expenses', expenseId]);
-  });
-
-  $effect(() => {
-    if (open && expenseId === undefined) form?.reset();
-  });
-
-  const updateExpense = createUpdateExpenseMutation({
-    onSuccess: () => {
-      onclose();
-      form?.reset();
-    }
-  });
 
   const handleUpdateExpense = (event: SubmitEvent) => {
     event.preventDefault();
     const formData = new FormData(event.target as HTMLFormElement);
     $updateExpense.mutate({
-      id: $page.params.id,
-      expenseId: expenseId,
+      id,
+      expenseId,
       expense: {
         title: formData.get('title') as string,
         price: Number.parseFloat(formData.get('price') as string),
@@ -50,18 +33,32 @@
     });
   };
 
-  const handleClose = () => {
-    onclose();
-  };
+  $effect(() => {
+    if (id !== undefined && expenseId !== undefined)
+      expense = client.getQueryData<Expense>(['bills', id, 'expenses', expenseId]);
+  });
+
+  $effect(() => {
+    if (!open) {
+      expense = undefined;
+      form?.reset();
+    }
+  });
+
+  const updateExpense = createUpdateExpenseMutation({
+    onSuccess: onclose
+  });
 </script>
 
-<Dialog {open} onclose={handleClose}>
-  <ExpenseForm
-    bind:form
-    initialValue={expense}
-    oncancel={onclose}
-    onsubmit={handleUpdateExpense}
-    disabled={$updateExpense.isPending}
-    participants={$bill.data?.participants ?? []}
-  />
+<Dialog {open} {onclose}>
+  {#key expense}
+    <ExpenseForm
+      bind:form
+      initialValue={expense}
+      oncancel={onclose}
+      onsubmit={handleUpdateExpense}
+      disabled={$updateExpense.isPending}
+      participants={$bill.data?.participants ?? []}
+    />
+  {/key}
 </Dialog>

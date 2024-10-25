@@ -8,7 +8,7 @@
   import Expense from '$lib/components/Expense.svelte';
   import LoadingScreen from '$lib/components/LoadingScreen.svelte';
   import ThemeToggle from '$lib/components/ThemeToggle.svelte';
-  import ParticipantsForm from '$lib/forms/BillForm.svelte';
+  import ParticipantsForm from '$lib/forms/ParticipantsForm.svelte';
   import TitleForm from '$lib/forms/TitleForm.svelte';
   import DebtsDialog from '$lib/layouts/DebtsDialog.svelte';
   import DeleteExpenseDialog from '$lib/layouts/DeleteExpenseDialog.svelte';

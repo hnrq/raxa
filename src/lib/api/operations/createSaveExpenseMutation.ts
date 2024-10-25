@@ -28,11 +28,10 @@ const createSaveExpenseMutation = (
 
       queryClient.setQueryData(['bills', id, 'expenses'], (expenses: Expense[]) =>
         variables.expenseId
-          ? expenses.map((prev) => (prev.id === expenseId ? expense : prev))
+          ? expenses.map((prev) => (prev.id === expenseId ? { id: expenseId, ...expense } : prev))
           : [...expenses, { id: expenseId, ...expense }]
       );
-
-      queryClient.setQueryData(['bills', id, 'expenses', expenseId], expense);
+      queryClient.setQueryData(['bills', id, 'expenses', expenseId], { ...expense, id: expenseId });
       queryClient.invalidateQueries({
         queryKey: ['bills', id, 'expenses', expenseId],
         exact: true
