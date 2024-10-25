@@ -10,6 +10,7 @@ This is a Svelte 5 + Firebase small project to split bills between folks.
 - [x] Add expense participants
 - [x] See debts
 - [ ] Edit participants
+- [ ] Playwright tests
 
 ## Demo
 
