@@ -1,10 +1,10 @@
 <script lang="ts">
   import client from '$lib/api/client';
   import createBillQuery from '$lib/api/operations/billQuery';
-  import createUpdateExpenseMutation from '$lib/api/operations/saveExpenseMutation';
+  import createUpdateBillMutation from '$lib/api/operations/updateBillMutation';
   import Dialog from '$lib/components/Dialog.svelte';
-  import ExpenseForm from '$lib/forms/ExpenseForm.svelte';
-  import type { Expense } from '$lib/types';
+  import BillForm from '$lib/forms/BillForm.svelte';
+  import type { Bill } from '$lib/types';
 
   let {
     id,
@@ -16,12 +16,12 @@
 
   const bill = createBillQuery({ id });
 
-  let expense: Expense | undefined = $state();
+  let expense: Bill | undefined = $state();
 
-  const handleUpdateExpense = (event: SubmitEvent) => {
+  const handleUpdateBill = (event: SubmitEvent) => {
     event.preventDefault();
     const formData = new FormData(event.target as HTMLFormElement);
-    $updateExpense.mutate({
+    $updateBill.mutate({
       id,
       expenseId,
       expense: {
@@ -35,7 +35,7 @@
 
   $effect(() => {
     if (id !== undefined && expenseId !== undefined)
-      expense = client.getQueryData<Expense>(['bills', id, 'expenses', expenseId]);
+      expense = client.getQueryData<Bill>(['bills', id, 'expenses', expenseId]);
   });
 
   $effect(() => {
@@ -45,19 +45,19 @@
     }
   });
 
-  const updateExpense = createUpdateExpenseMutation({
+  const updateBill = createUpdateBillMutation({
     onSuccess: onclose
   });
 </script>
 
 <Dialog {open} {onclose}>
   {#key expense}
-    <ExpenseForm
+    <BillForm
       bind:form
       initialValue={expense}
       oncancel={onclose}
-      onsubmit={handleUpdateExpense}
-      disabled={$updateExpense.isPending}
+      onsubmit={handleUpdateBill}
+      disabled={$updateBill.isPending}
       participants={$bill.data?.participants ?? []}
     />
   {/key}

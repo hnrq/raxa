@@ -1,5 +1,5 @@
 <script lang="ts">
-  import createDeleteExpenseMutation from '$lib/api/operations/createDeleteExpenseMutation';
+  import createDeleteExpenseMutation from '$lib/api/operations/deleteExpenseMutation';
   import ConfirmationDialog from '$lib/components/ConfirmationDialog.svelte';
   import type { Expense } from '$lib/types';
   import { useQueryClient } from '@tanstack/svelte-query';

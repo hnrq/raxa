@@ -1,10 +1,10 @@
 <script lang="ts">
   import { pushState, replaceState } from '$app/navigation';
   import { page } from '$app/stores';
-  import createBillQuery from '$lib/api/operations/createBillQuery';
-  import createExpensesQuery from '$lib/api/operations/createExpensesQuery';
-  import createUpdateParticipantsMutation from '$lib/api/operations/createUpdateParticipantsMutation';
-  import createUpdateTitleMutation from '$lib/api/operations/createUpdateTitleMutation';
+  import createBillQuery from '$lib/api/operations/billQuery';
+  import createExpensesQuery from '$lib/api/operations/expensesQuery';
+  import createUpdateParticipantsMutation from '$lib/api/operations/updateParticipantsMutation';
+  import createUpdateTitleMutation from '$lib/api/operations/updateTitleMutation';
   import Expense from '$lib/components/Expense.svelte';
   import LoadingScreen from '$lib/components/LoadingScreen.svelte';
   import ThemeToggle from '$lib/components/ThemeToggle.svelte';

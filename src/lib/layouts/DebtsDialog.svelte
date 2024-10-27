@@ -1,5 +1,5 @@
 <script lang="ts">
-  import createExpensesQuery from '$lib/api/operations/createExpensesQuery';
+  import createExpensesQuery from '$lib/api/operations/expensesQuery';
   import Dialog from '$lib/components/Dialog.svelte';
   import simplifiedDebts, { calcDebts } from '$lib/utils/debts';
 
