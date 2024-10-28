@@ -1,19 +1,18 @@
 <script lang="ts">
-  import createExpensesQuery from '$lib/api/operations/expensesQuery';
   import Dialog from '$lib/components/Dialog.svelte';
+  import type createBill from '../stores/bill.svelte';
   import simplifiedDebts, { calcDebts } from '$lib/utils/debts';
+  import { getContext } from 'svelte';
+  import { page } from '$app/stores';
 
-  let { id, open, onclose }: { id: string; open: boolean; onclose: () => void } = $props();
-  const expenses = createExpensesQuery({ id });
+  let { onclose }: { onclose: () => void } = $props();
+  let { expenses } = getContext<ReturnType<typeof createBill>>('bill');
   let simplifyDebts = $state(true);
 
-  let debtsSimplified = $derived(simplifiedDebts($expenses.data ?? []));
-  let debtsComplete = $derived(calcDebts($expenses.data ?? []));
-
-  let debts = $derived(simplifyDebts ? debtsSimplified : debtsComplete);
+  let debts = $derived((simplifyDebts ? simplifiedDebts : calcDebts)(Object.values(expenses)));
 </script>
 
-<Dialog {open} {onclose}>
+<Dialog open={$page.state.modalShown === 'debts'} {onclose}>
   <div class="debts">
     <h3>Who are the deadbeats?</h3>
     <label>
@@ -21,7 +20,7 @@
       Simplify Debts
     </label>
     {#if debts.length === 0}
-      <p>No debts</p>
+      <p>No one...? I wasn't expecting that :eyes:</p>
     {:else}
       <ul>
         {#each debts as { from, to, amount }}

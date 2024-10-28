@@ -1,138 +1,73 @@
 <script lang="ts">
   import { pushState, replaceState } from '$app/navigation';
   import { page } from '$app/stores';
-  import createBillQuery from '$lib/api/operations/billQuery';
-  import createExpensesQuery from '$lib/api/operations/expensesQuery';
-  import createUpdateParticipantsMutation from '$lib/api/operations/updateParticipantsMutation';
-  import createUpdateTitleMutation from '$lib/api/operations/updateTitleMutation';
   import Expense from '$lib/components/Expense.svelte';
-  import LoadingScreen from '$lib/components/LoadingScreen.svelte';
   import ThemeToggle from '$lib/components/ThemeToggle.svelte';
-  import ParticipantsForm from '$lib/forms/ParticipantsForm.svelte';
-  import TitleForm from '$lib/forms/TitleForm.svelte';
-  import DebtsDialog from '$lib/layouts/DebtsDialog.svelte';
-  import DeleteExpenseDialog from '$lib/layouts/DeleteExpenseDialog.svelte';
-  import ExpenseDialog from '$lib/layouts/ExpenseDialog.svelte';
-  import { derived } from 'svelte/store';
+  import ExpenseDialog from './components/ExpenseDialog.svelte';
+  import type { PageServerData } from './$types';
+  import createBill from './stores/bill.svelte';
+  import { setContext } from 'svelte';
+  import BillDialog from './components/BillDialog.svelte';
+  import DebtsDialog from './components/DebtsDialog.svelte';
+  import DeleteExpenseDialog from './components/DeleteExpenseDialog.svelte';
 
-  let showEditParticipantsForm = $state(false);
-  let showEditTitleForm = $state(false);
+  let { data }: { data: PageServerData } = $props();
 
-  const bill = createBillQuery({ id: $page.params.id });
-  const expenses = createExpensesQuery({ id: $page.params.id });
-  const updateParticipants = createUpdateParticipantsMutation({
-    onSuccess: () => (showEditParticipantsForm = false)
-  });
-  const updateTitle = createUpdateTitleMutation({
-    onSuccess: () => (showEditTitleForm = false)
-  });
+  const billStore = createBill(data.bill);
+  const { bill, total, participants, expenses } = billStore;
+  const onclose = () => replaceState(`/${$page.params.id}`, {});
 
-  const handleUpdateParticipants = async (event: SubmitEvent) => {
-    event.preventDefault();
-    const formData = new FormData(event.target as HTMLFormElement);
-    $updateParticipants.mutate({
-      id: $page.params.id,
-      participants: (formData.get('participants') as string).split(', ')
-    });
-  };
-
-  const handleUpdateTitle = (event: SubmitEvent) => {
-    event.preventDefault();
-    const formData = new FormData(event.target as HTMLFormElement);
-    $updateTitle.mutate({ id: $page.params.id, title: formData.get('title') as string });
-  };
-
-  const total = derived(
-    expenses,
-    ($expenses) => $expenses.data?.reduce((acc, { price }) => acc + price, 0) ?? 0
-  );
+  setContext('bill', billStore);
 </script>
 
-{#if $bill.isLoading}
-  <LoadingScreen />
-{:else if $bill.data !== undefined}
-  <div class="bill">
-    <ThemeToggle class="theme-toggle" />
-    <div class="bill__title">
-      {#if showEditTitleForm}
-        <TitleForm
-          initialValue={$bill.data.title}
-          disabled={$updateTitle.isPending}
-          onsubmit={handleUpdateTitle}
-          oncancel={() => (showEditTitleForm = false)}
-        />
-      {:else}
-        <h1>{$bill.data.title ?? 'Untitled bill'}</h1>
-        <button type="button" class="button--text" onclick={() => (showEditTitleForm = true)}>
-          Edit
-        </button>
-      {/if}
-    </div>
-    <div class="bill__participants">
-      {#if showEditParticipantsForm}
-        <ParticipantsForm
-          disabled={$updateParticipants.isPending}
-          onsubmit={handleUpdateParticipants}
-          oncancel={() => (showEditParticipantsForm = false)}
-          initialValue={$bill.data.participants.join(', ')}
-        />
-      {:else}
-        <small>Divided by {$bill.data.participants.join(', ')}</small>
-        <button class="button--text" onclick={() => (showEditParticipantsForm = true)}>
-          Edit
-        </button>
-      {/if}
-    </div>
-    <hr />
+<div class="bill">
+  <ThemeToggle class="theme-toggle" />
+  <div class="bill__title">
+    <h1>{bill.title ? bill.title : 'Untitled bill'}</h1>
     <button
       type="button"
-      class="bill__add-expense"
-      disabled={$expenses.isLoading}
-      onclick={() => pushState('', { modalShown: 'expense' })}
+      class="button--text"
+      onclick={() => pushState('', { modalShown: 'bill' })}
     >
-      + Add expense
+      Edit
     </button>
-    <div class="bill__expenses">
-      {#if $expenses.isLoading}
-        <LoadingScreen />
-      {:else}
-        {#each $expenses.data ?? [] as expense}
-          <Expense
-            {expense}
-            onedit={() => pushState('', { modalShown: 'expense', expenseId: expense.id })}
-            ondelete={() => pushState('', { modalShown: 'delete-expense', expenseId: expense.id })}
-          />
-        {/each}
-      {/if}
-    </div>
-    <button type="button" onclick={() => pushState('', { modalShown: 'debts' })}>Show Debts</button>
-    <hr />
-    <div class="bill__total">
-      <small>Total:</small>
-      <h1>${Number($total).toFixed(2)}</h1>
-    </div>
   </div>
-{/if}
+  <div class="bill__participants">
+    <small
+      >Divided by {Object.values(participants)
+        .map(({ name }) => name)
+        .join(', ')}</small
+    >
+  </div>
+  <hr />
+  <button
+    type="button"
+    class="bill__add-expense"
+    onclick={() => pushState('', { modalShown: 'expense' })}
+  >
+    + Add expense
+  </button>
+  <div class="bill__expenses">
+    {#each Object.values(expenses) as expense}
+      <Expense
+        {expense}
+        onedit={() => pushState('', { modalShown: 'expense', expenseId: expense.id })}
+        ondelete={() => pushState('', { modalShown: 'delete-expense', expenseId: expense.id })}
+      />
+    {/each}
+  </div>
+  <button type="button" onclick={() => pushState('', { modalShown: 'debts' })}>Show Debts</button>
+  <hr />
+  <div class="bill__total">
+    <small>Total:</small>
+    <h1>${Number(total).toFixed(2)}</h1>
+  </div>
+</div>
 
-<ExpenseDialog
-  open={$page.state.modalShown === 'expense'}
-  id={$page.params.id}
-  expenseId={$page.state.expenseId}
-  onclose={() => replaceState(`/${$page.params.id}`, {})}
-/>
-
-<DebtsDialog
-  open={$page.state.modalShown === 'debts'}
-  id={$page.params.id}
-  onclose={() => replaceState(`/${$page.params.id}`, {})}
-/>
-
-<DeleteExpenseDialog
-  open={$page.state.modalShown === 'delete-expense'}
-  id={$page.params.id}
-  expenseId={$page.state.expenseId}
-  onclose={() => replaceState(`/${$page.params.id}`, {})}
-/>
+<BillDialog {onclose} />
+<ExpenseDialog {onclose} />
+<DebtsDialog {onclose} />
+<DeleteExpenseDialog {onclose} />
 
 <style>
   .bill {
