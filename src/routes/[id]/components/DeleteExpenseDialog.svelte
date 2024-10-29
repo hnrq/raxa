@@ -14,7 +14,7 @@
   const handleDelete = async () => {
     if (expenseId === undefined) return;
 
-    await fetch(`/api/bills/${$page.params.id}/expenses/${expenseId}`, { method: 'DELETE' });
+    await fetch(`/api/expenses/${expenseId}`, { method: 'DELETE' });
     deleteExpense(expenseId);
     onclose();
   };
