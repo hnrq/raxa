@@ -130,7 +130,20 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
-      [_ in never]: never;
+      upsert_expense: {
+        Args: {
+          expense_data: unknown;
+          participant_ids: number[];
+        };
+        Returns: {
+          amount: number;
+          bill_id: string;
+          created_at: string;
+          id: number;
+          paid_by: number | null;
+          title: string;
+        }[];
+      };
     };
     Enums: {
       [_ in never]: never;

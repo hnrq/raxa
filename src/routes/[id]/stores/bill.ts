@@ -14,6 +14,17 @@ const createBill = (initialData?: Bill) => {
     bill: { subscribe: bill.subscribe },
     total: { subscribe: total.subscribe },
     updateBill: bill.set,
+    saveExpense: (expense: Bill['expenses'][number]) =>
+      bill.update((prev) => {
+        const index = prev.expenses.findIndex(({ id }) => id === expense.id);
+        return {
+          ...prev,
+          expenses:
+            index === -1
+              ? [...prev.expenses]
+              : [...prev.expenses.slice(0, index), expense, ...prev.expenses.slice(index + 1)]
+        };
+      }),
     deleteExpense: (id: number) =>
       bill.update((prev) => ({
         ...prev,

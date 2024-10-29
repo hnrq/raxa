@@ -8,7 +8,9 @@
   let { bill } = getContext<ReturnType<typeof createBill>>('bill');
   let simplifyDebts = $state(true);
 
-  let debts = $derived((simplifyDebts ? simplifiedDebts : calcDebts)($bill.expenses));
+  let debts = $derived(
+    (simplifyDebts ? simplifiedDebts : calcDebts)($bill.expenses, $bill.participants)
+  );
 </script>
 
 <Dialog {open} {onclose}>
@@ -24,7 +26,9 @@
       <ul>
         {#each debts as { from, to, amount }}
           <li>
-            <small><b>{from}</b> owes <b>${Number(amount).toFixed()}</b> to <b>{to}</b></small>
+            <small>
+              <b>{from?.name}</b> owes <b>${Number(amount).toFixed(2)}</b> to <b>{to?.name}</b>
+            </small>
           </li>
         {/each}
       </ul>

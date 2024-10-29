@@ -11,8 +11,8 @@ expenses (
   id,
   title,
   amount,
-  paidBy:participants!paid_by (id, name),
-  participants:participants!id (id, name)
+  paidBy:participants!expense_paid_by_fkey (id, name),
+  participants!expenses_participants (id, name)
 )
 `
   );

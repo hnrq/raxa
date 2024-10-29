@@ -54,19 +54,39 @@ export const actions = {
 
     if (!title || !amount || !paidBy || !participants) return fail(400, { missing: true });
 
-    console.log({ title, amount, expenseId, paidBy, participants });
+    const { data: upsertData, error } = await supabase
+      .rpc('upsert_expense', {
+        expense_data: {
+          id: expenseId ? Number(expenseId) : undefined,
+          title: title.toString(),
+          amount: amount.toString(),
+          paid_by: paidBy.toString(),
+          bill_id: params.id
+        },
+        participant_ids: participants.map((id) => Number(id))
+      })
+      .select('id')
+      .single();
 
+    // Ensure that returned participants are not outdated
     const { data: expense } = await supabase
       .from('expenses')
-      .upsert({
-        id: expenseId ? Number(expenseId) : undefined,
-        title: title.toString(),
-        amount: amount.toString(),
-        paid_by: paidBy.toString(),
-        participants: participants,
-        bill_id: params.id
-      })
-      .select();
+      .select(
+        `
+      id,
+      title,
+      amount,
+      paidBy:participants!expense_paid_by_fkey (id, name),
+      participants!expenses_participants (id, name)
+    `
+      )
+      .eq('id', upsertData?.id as number)
+      .single();
+
+    if (error) {
+      console.error({ error });
+      return fail(500, { error });
+    }
 
     return { expense };
   }

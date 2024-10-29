@@ -1,5 +1,3 @@
-import { fail } from '@sveltejs/kit';
-
 export const DELETE = async ({ params, locals: { supabase } }) => {
   const { error } = await supabase.from('expenses').delete().eq('id', params.id);
 

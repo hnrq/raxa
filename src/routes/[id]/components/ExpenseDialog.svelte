@@ -4,20 +4,45 @@
   import type createBill from '../stores/bill';
   import { page } from '$app/stores';
   import FormActions from '$lib/components/FormActions.svelte';
+  import { enhance } from '$app/forms';
+  import type { ActionResult } from '@sveltejs/kit';
+  import type { Bill } from '../stores/bill';
 
   let { onclose, open }: { onclose: () => void; open: boolean } = $props();
 
-  const { bill } = getContext<ReturnType<typeof createBill>>('bill');
-  const expense = $bill.expenses.find(({ id }) => id === expenseId);
-
+  const { bill, saveExpense } = getContext<ReturnType<typeof createBill>>('bill');
   let { expenseId = '' } = $page.state;
 
+  const expense = $bill.expenses.find(({ id }) => id === expenseId);
   let loading = $state(false);
 </script>
 
 <Dialog {open} {onclose}>
-  <form class="expense-form" action="?/save-expense">
-    <input type="hidden" value={expense?.id} />
+  <form
+    class="expense-form"
+    method="POST"
+    action="?/save-expense"
+    use:enhance={() => {
+      loading = true;
+
+      return async ({
+        result,
+        update
+      }: {
+        result: ActionResult<{ expense: Bill['expenses'][number] }>;
+        update: () => void;
+      }) => {
+        loading = false;
+        if (result.type !== 'success') return;
+        if (!result.data) return;
+
+        saveExpense(result.data.expense);
+        onclose();
+        update();
+      };
+    }}
+  >
+    <input type="hidden" name="expenseId" value={expense?.id} />
     <label>
       Title:
       <!-- svelte-ignore a11y_autofocus -->
@@ -47,7 +72,7 @@
       Paid by:
       <select name="paidBy" required disabled={loading}>
         {#each $bill.participants as participant}
-          <option value={participant.id} selected={expense?.paidBy[0].id === participant.id}>
+          <option value={participant.id} selected={expense?.paidBy?.id === participant.id}>
             {participant.name}
           </option>
         {/each}
@@ -63,6 +88,7 @@
             name="participants"
             value={participant.id}
             checked={!expense?.participants ||
+              expense?.participants.length === 0 ||
               expense.participants.some(({ id }) => id === participant.id)}
           />
           {participant.name}

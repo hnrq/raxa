@@ -5,8 +5,6 @@ import { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY } from '$env/static/publi
 import type { Database } from '$lib/supabase/database.types';
 
 export const handle: Handle = async ({ event, resolve }) => {
-  const AUTH_HOOK = 'AUTH';
-
   event.locals.supabase = createServerClient<Database>(
     PUBLIC_SUPABASE_URL,
     PUBLIC_SUPABASE_ANON_KEY,
@@ -33,11 +31,8 @@ export const handle: Handle = async ({ event, resolve }) => {
     } = await event.locals.supabase.auth.getSession();
 
     if (!session) {
-      console.log(AUTH_HOOK, 'No session found, signing in anonymously');
       const { data, error } = await event.locals.supabase.auth.signInAnonymously();
-
       if (error) throw error;
-
       session = data.session;
     }
 

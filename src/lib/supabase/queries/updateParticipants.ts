@@ -19,8 +19,6 @@ const updateParticipants = async ({
   Promise.all(
     participants.map((name, i) => {
       const query = client.from('participants');
-      console.log(participantActions[i], participantIds[i], name);
-
       if (participantActions[i] === 'delete')
         return query.delete().eq('id', participantIds[i]).select().single();
       if (participantActions[i] === 'update')
