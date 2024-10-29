@@ -6,7 +6,7 @@ export const load: PageServerLoad = async ({ locals: { supabase, safeGetSession 
 
   if (!user) throw new Error('Unauthorized');
 
-  const { data: bill, error } = await supabase.from('bill').insert({ user_id: user?.id }).select();
+  const { data: bill, error } = await supabase.from('bills').insert({ user_id: user?.id }).select();
 
   if (error) throw error;
 

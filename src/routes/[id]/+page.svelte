@@ -5,7 +5,7 @@
   import ThemeToggle from '$lib/components/ThemeToggle.svelte';
   import ExpenseDialog from './components/ExpenseDialog.svelte';
   import type { PageServerData } from './$types';
-  import createBill from './stores/bill.svelte';
+  import createBill from './stores/bill';
   import { setContext } from 'svelte';
   import BillDialog from './components/BillDialog.svelte';
   import DebtsDialog from './components/DebtsDialog.svelte';
@@ -14,7 +14,7 @@
   let { data }: { data: PageServerData } = $props();
 
   const billStore = createBill(data.bill);
-  const { bill, total, participants, expenses } = billStore;
+  const { bill, total } = billStore;
   const onclose = () => replaceState(`/${$page.params.id}`, {});
 
   setContext('bill', billStore);
@@ -23,7 +23,7 @@
 <div class="bill">
   <ThemeToggle class="theme-toggle" />
   <div class="bill__title">
-    <h1>{bill.title ? bill.title : 'Untitled bill'}</h1>
+    <h1>{$bill.title ? $bill.title : 'Untitled bill'}</h1>
     <button
       type="button"
       class="button--text"
@@ -33,11 +33,7 @@
     </button>
   </div>
   <div class="bill__participants">
-    <small
-      >Divided by {Object.values(participants)
-        .map(({ name }) => name)
-        .join(', ')}</small
-    >
+    <small>Divided by {$bill.participants.map(({ name }) => name).join(', ')}</small>
   </div>
   <hr />
   <button
@@ -48,7 +44,7 @@
     + Add expense
   </button>
   <div class="bill__expenses">
-    {#each Object.values(expenses) as expense}
+    {#each $bill.expenses as expense}
       <Expense
         {expense}
         onedit={() => pushState('', { modalShown: 'expense', expenseId: expense.id })}
@@ -60,14 +56,22 @@
   <hr />
   <div class="bill__total">
     <small>Total:</small>
-    <h1>${Number(total).toFixed(2)}</h1>
+    <h1>${Number($total).toFixed(2)}</h1>
   </div>
 </div>
 
-<BillDialog {onclose} />
-<ExpenseDialog {onclose} />
-<DebtsDialog {onclose} />
-<DeleteExpenseDialog {onclose} />
+{#key $page.state.modalShown === 'bill'}
+  <BillDialog {onclose} open={$page.state.modalShown === 'bill'} />
+{/key}
+{#key $page.state.modalShown === 'expense'}
+  <ExpenseDialog {onclose} open={$page.state.modalShown === 'expense'} />
+{/key}
+{#key $page.state.modalShown === 'debts'}
+  <DebtsDialog {onclose} open={$page.state.modalShown === 'debts'} />
+{/key}
+{#key $page.state.modalShown === 'delete-expense'}
+  <DeleteExpenseDialog {onclose} open={$page.state.modalShown === 'delete-expense'} />
+{/key}
 
 <style>
   .bill {

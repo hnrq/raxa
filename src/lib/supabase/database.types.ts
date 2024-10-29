@@ -3,7 +3,7 @@ export type Json = string | number | boolean | null | { [key: string]: Json | un
 export type Database = {
   public: {
     Tables: {
-      bill: {
+      bills: {
         Row: {
           created_at: string;
           id: string;
@@ -24,7 +24,7 @@ export type Database = {
         };
         Relationships: [];
       };
-      expense: {
+      expenses: {
         Row: {
           amount: number;
           bill_id: string;
@@ -54,32 +54,29 @@ export type Database = {
             foreignKeyName: 'expense_bill_id_fkey';
             columns: ['bill_id'];
             isOneToOne: false;
-            referencedRelation: 'bill';
+            referencedRelation: 'bills';
             referencedColumns: ['id'];
           },
           {
             foreignKeyName: 'expense_paid_by_fkey';
             columns: ['paid_by'];
             isOneToOne: false;
-            referencedRelation: 'participant';
+            referencedRelation: 'participants';
             referencedColumns: ['id'];
           }
         ];
       };
-      expense_participant: {
+      expenses_participants: {
         Row: {
           expense_id: number;
-          id: number;
           participant_id: number;
         };
         Insert: {
           expense_id: number;
-          id?: number;
           participant_id: number;
         };
         Update: {
           expense_id?: number;
-          id?: number;
           participant_id?: number;
         };
         Relationships: [
@@ -87,19 +84,19 @@ export type Database = {
             foreignKeyName: 'expense_participant_expense_id_fkey';
             columns: ['expense_id'];
             isOneToOne: false;
-            referencedRelation: 'expense';
+            referencedRelation: 'expenses';
             referencedColumns: ['id'];
           },
           {
             foreignKeyName: 'expense_participant_participant_id_fkey';
             columns: ['participant_id'];
             isOneToOne: false;
-            referencedRelation: 'participant';
+            referencedRelation: 'participants';
             referencedColumns: ['id'];
           }
         ];
       };
-      participant: {
+      participants: {
         Row: {
           bill_id: string;
           created_at: string;
@@ -123,7 +120,7 @@ export type Database = {
             foreignKeyName: 'participant_bill_id_fkey';
             columns: ['bill_id'];
             isOneToOne: false;
-            referencedRelation: 'bill';
+            referencedRelation: 'bills';
             referencedColumns: ['id'];
           }
         ];

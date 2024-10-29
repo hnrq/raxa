@@ -1,18 +1,17 @@
 <script lang="ts">
   import Dialog from '$lib/components/Dialog.svelte';
-  import type createBill from '../stores/bill.svelte';
+  import type createBill from '../stores/bill';
   import simplifiedDebts, { calcDebts } from '$lib/utils/debts';
   import { getContext } from 'svelte';
-  import { page } from '$app/stores';
 
-  let { onclose }: { onclose: () => void } = $props();
-  let { expenses } = getContext<ReturnType<typeof createBill>>('bill');
+  let { onclose, open }: { onclose: () => void; open: boolean } = $props();
+  let { bill } = getContext<ReturnType<typeof createBill>>('bill');
   let simplifyDebts = $state(true);
 
-  let debts = $derived((simplifyDebts ? simplifiedDebts : calcDebts)(Object.values(expenses)));
+  let debts = $derived((simplifyDebts ? simplifiedDebts : calcDebts)($bill.expenses));
 </script>
 
-<Dialog open={$page.state.modalShown === 'debts'} {onclose}>
+<Dialog {open} {onclose}>
   <div class="debts">
     <h3>Who are the deadbeats?</h3>
     <label>

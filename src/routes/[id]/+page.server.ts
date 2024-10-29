@@ -23,23 +23,22 @@ export const actions = {
 
       if (!title) return fail(400, { title, missing: true });
 
-      const { error } = await supabase.from('bill').update({ title }).eq('id', params.id);
+      await Promise.all([
+        updateParticipants({
+          client: supabase,
+          billId: params.id,
+          participantActions: data.getAll('participantAction') as string[],
+          participants: data
+            .getAll('participant')
+            .map((participant) => participant.toString().trim()) as string[],
+          participantIds: data.getAll('participantId') as string[]
+        }),
+        supabase.from('bills').update({ title }).eq('id', params.id).select()
+      ]);
 
-      if (error) throw error;
+      const bill = await billQuery(supabase).eq('id', params.id).single();
 
-      const participants = await updateParticipants({
-        client: supabase,
-        billId: params.id,
-        participants: data
-          .getAll('participant')
-          .map((participant) => participant.toString().trim()) as string[],
-        participantIds: data.getAll('participantId') as string[]
-      });
-
-      return {
-        title: title.toString(),
-        participants: participants?.map((participant) => participant.data)
-      };
+      return { bill: bill.data };
     } catch (err) {
       console.error(err);
       return fail(500, { error: `Failed to update bill ${err}` });
@@ -58,7 +57,7 @@ export const actions = {
     console.log({ title, amount, expenseId, paidBy, participants });
 
     const { data: expense } = await supabase
-      .from('expense')
+      .from('expenses')
       .upsert({
         id: expenseId ? Number(expenseId) : undefined,
         title: title.toString(),
