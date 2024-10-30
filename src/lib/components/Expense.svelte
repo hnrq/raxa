@@ -1,24 +1,24 @@
 <script lang="ts">
-  import type { Expense } from '$lib/types';
+  import type { Bill } from '../../routes/[id]/stores/bill';
 
   let {
     expense,
     onedit,
     ondelete
-  }: { expense: Expense; onedit: () => void; ondelete: () => void } = $props();
+  }: { expense: Bill['expenses'][number]; onedit: () => void; ondelete: () => void } = $props();
 </script>
 
 <div class="expense">
   <div class="expense__title">
     <span>{expense.title}</span>
     <hr />
-    <span>{Number(expense.price).toFixed(2)}</span>
+    <span>{Number(expense.amount).toFixed(2)}</span>
   </div>
   <small class="expense__paid-by">
-    Paid by {expense.paidBy}
+    Paid by {expense.paidBy?.name}
   </small>
   <small class="expense__used-by">
-    Divided by {expense.participants.join(', ')}
+    Divided by {expense.participants.map(({ name }) => name).join(', ')}
   </small>
   <div class="expense__actions">
     <button onclick={onedit} class="button--text">Edit</button>

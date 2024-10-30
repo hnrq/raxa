@@ -1,16 +1,16 @@
 <script lang="ts">
-  import createExpensesQuery from '$lib/api/operations/createExpensesQuery';
   import Dialog from '$lib/components/Dialog.svelte';
+  import type createBill from '../stores/bill';
   import simplifiedDebts, { calcDebts } from '$lib/utils/debts';
+  import { getContext } from 'svelte';
 
-  let { id, open, onclose }: { id: string; open: boolean; onclose: () => void } = $props();
-  const expenses = createExpensesQuery({ id });
+  let { onclose, open }: { onclose: () => void; open: boolean } = $props();
+  let { bill } = getContext<ReturnType<typeof createBill>>('bill');
   let simplifyDebts = $state(true);
 
-  let debtsSimplified = $derived(simplifiedDebts($expenses.data ?? []));
-  let debtsComplete = $derived(calcDebts($expenses.data ?? []));
-
-  let debts = $derived(simplifyDebts ? debtsSimplified : debtsComplete);
+  let debts = $derived(
+    (simplifyDebts ? simplifiedDebts : calcDebts)($bill.expenses, $bill.participants)
+  );
 </script>
 
 <Dialog {open} {onclose}>
@@ -21,12 +21,14 @@
       Simplify Debts
     </label>
     {#if debts.length === 0}
-      <p>No debts</p>
+      <p>No one...? I wasn't expecting that :eyes:</p>
     {:else}
       <ul>
         {#each debts as { from, to, amount }}
           <li>
-            <small><b>{from}</b> owes <b>${Number(amount).toFixed()}</b> to <b>{to}</b></small>
+            <small>
+              <b>{from?.name}</b> owes <b>${Number(amount).toFixed(2)}</b> to <b>{to?.name}</b>
+            </small>
           </li>
         {/each}
       </ul>

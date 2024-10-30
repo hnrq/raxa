@@ -1,10 +1,7 @@
 <script lang="ts">
   import { browser } from '$app/environment';
-  import client from '$lib/api/client';
   import '$lib/theme/index.css';
-  import { QueryClientProvider } from '@tanstack/svelte-query';
   import { onMount, type Snippet } from 'svelte';
-  import { SvelteQueryDevtools } from '@tanstack/svelte-query-devtools';
 
   let { children }: { children: Snippet } = $props();
 
@@ -21,7 +18,4 @@
   });
 </script>
 
-<QueryClientProvider {client}>
-  <SvelteQueryDevtools />
-  {@render children()}
-</QueryClientProvider>
+{@render children()}

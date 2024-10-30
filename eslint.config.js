@@ -24,12 +24,14 @@ export default tseslint.config(
       parserOptions: {
         parser: tseslint.parser
       }
-    },
-    rules: {
-      'svelte(a11y_autofocus)': 'off'
     }
   },
   {
     ignores: ['build/', '.svelte-kit/', 'dist/']
+  },
+  {
+    rules: {
+      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }]
+    }
   }
 );
