@@ -2,16 +2,18 @@
   import localStore from '$lib/stores/localStore.svelte';
 
   let { class: className = '' } = $props();
-  let theme = localStore<'light' | 'dark'>('theme');
+  let theme = localStore<'light' | 'dark'>('theme', 'light');
 
   const toggleTheme = () => theme?.set(theme.value === 'light' ? 'dark' : 'light');
 
   $effect(() => {
-    document.documentElement.classList.remove('light', 'dark');
-    if (typeof theme?.value === 'string') document.documentElement.classList.add(theme.value);
+    if (typeof theme?.value === 'string') {
+      document.documentElement.classList.remove('light', 'dark');
+      document.documentElement.classList.add(theme.value);
+    }
   });
 </script>
 
 <button type="submit" onclick={toggleTheme} class={`button--text ${className}`}>
-  {theme?.value === 'light' ? 'LIGHT' : 'DARK'}
+  {theme?.value === 'dark' ? 'DARK' : 'LIGHT'}
 </button>

@@ -1,11 +1,14 @@
 import { browser } from '$app/environment';
 
-const localStore = <T>(key: string) => {
+const localStore = <T>(key: string, defaultValue?: string) => {
   if (!browser) return;
 
-  let value = $state<T | undefined>(localStorage[key]);
+  let value = $state<T | undefined>(localStorage[key] ?? defaultValue);
 
-  $effect(() => localStorage.setItem(key, value as string));
+  $effect(() => {
+    if (value) localStorage.setItem(key, value as string);
+    else localStorage.removeItem(key);
+  });
 
   return {
     get value() {
